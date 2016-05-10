@@ -4,7 +4,7 @@ University project utilizing Hadoop MapReduce to derive association rules, a pro
 ## Run
 	$ hadoop_exec run -j bin/AssociationRules.jar -i data/sample.txt --args 3+2
 
-"--args <support threshold>+<maximum degree>" allows for customization
+"--args \<support threshold\>+\<maximum degree\>" allows for customization
 
 Support threshold 	: What is the minimum frequency a frequent itemset must have?
 Maximum Degree   	: What is the maximum number of independent elements a rule is allowed to be made of?
