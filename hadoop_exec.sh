@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #	-------------------------------------------
-#		Version :	1.0.0
-#		Date 	:	18.04.2016
+#		Version :	1.0.1
+#		Date 	:	09.05.2016
 #	-------------------------------------------
 
 
@@ -21,10 +21,11 @@ compileAll=false
 mainClass=""
 packageName=""
 
-# task:run <Jar Name>.jar <local dataset> <local output path>
+# task:run <Jar Name>.jar <local dataset> <local output path> <additional arguments>
 applicationJar=""
 inputFile=""
 outputPath=""
+additionalArguments=""
 
 #task: generate
 projectName=""
@@ -175,7 +176,7 @@ run () {
 	hdfs dfs -put $inputFile "data/$(basename $inputFile)"
 
 	progress_echo "INFO: executing $applicationJar"
-	hadoop jar $applicationJar "data/$(basename $inputFile)" $HDFS_OUTPUTPATH
+	hadoop jar $applicationJar "data/$(basename $inputFile)" $HDFS_OUTPUTPATH $additionalArguments
 
 	progress_echo "INFO: downloading results to $outputPath"
 	hdfs dfs -get $HDFS_OUTPUTPATH $outputPath
@@ -418,6 +419,8 @@ usage () {
 	echo "			-i | --input	: specify the data file to process"
 	echo "		OPTIONS (optional):"
 	echo "			-o | --output	: specify the output directory, if empty will be set to ./results"
+	echo "			     --args 	: add additional programm related arguments"
+	echo "			            	  make sure its one string (escape spaces between arguments)!"
 	echo "			-v | --verbose 	: log everything to console"
 	echo ""
 	echo "	generate	: generate a new hadoop application skeleton"
@@ -457,6 +460,9 @@ while [ "$1" != "" ]; do
         -o | --output )
 			shift
 			outputPath=$1;;
+        --args )
+			shift
+			additionalArguments=$1;;
         -pn | --projectname )
 			shift
 			projectName=$1;;
