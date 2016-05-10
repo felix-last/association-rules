@@ -1,0 +1,15 @@
+A.B.C
+A.C.D
+A.B
+A.B.C.D.F
+A
+C
+D
+A.D
+A.D.F
+A.C.D
+A.C.F
+A.B
+B.C.F
+B.C
+B.D.F
