@@ -28,7 +28,7 @@ public class AssociationRules {
 	public static final int MIN_NUMBER_ELEMENTS = 2; // less than 2 doesn't make sense, need at least 2 elements to construct a rule ;)
 	
 	public static final String SPLIT_SIZE = "1024"; // = 1kb
-	public static final int NUM_REDUCE_TASKS = 4; // 
+	public static final int NUM_REDUCE_TASKS = 1; // 
 	public static final long TASK_TIMEOUT = 3600000;
 
 	// commandline paramters:

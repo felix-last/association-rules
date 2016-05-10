@@ -23,7 +23,7 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	/*
 	*		INPUT FORMAT
 	*						key		: lineidentifier
-	*						value	: basket <{basket items}>, e.g. A.B.C.D
+	*						value	: basket <{basket items}>, e.g. A,B,C,D
 	*
 	*		OUTPUT FORMAT
 	*						key		: Itemset <{itemset}>, e.g. A;B;C
@@ -37,15 +37,14 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	}
 
 	private final static IntWritable one = new IntWritable(1);
-	private Set<String> inputSet = new HashSet();
 	
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 		
 		// convert input into array
-		String[] raw = value.toString().split("\\.");
+		String[] raw = value.toString().split(",");
 
 		// convert to set (ensures that there are no duplicates)
-		inputSet = new HashSet(Arrays.asList(raw));
+		Set<String> inputSet = new HashSet(Arrays.asList(raw));
 
 		// create every possible subset (consisting of minNumElements)
 		int minNumElements = Integer.parseInt(context.getConfiguration().get("MIN_NUMBER_ELEMENTS"));
@@ -62,11 +61,13 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 			String result = Utils.concatenateArray(subset.toArray(new String[0]), ";");
 			context.write(new Text(result), one);
 		}
+		System.out.println("CandidateMapper processed so far: Powerset Counter = " + context.getCounter(Counters.POWERSETS).getValue());
+		System.out.println("CandidateMapper processed so far: Inputlines Counter = " + context.getCounter(Counters.INPUTLINES).getValue());
 
 	}
 
 	public void cleanup(Context context){
-		System.out.println("Cleanup: Powerset Counter = " + context.getCounter(Counters.POWERSETS).getValue());
-		System.out.println("Cleanup: Inputlines Counter = " + context.getCounter(Counters.INPUTLINES).getValue());
+		System.out.println("Cleanup CandidateMapper: Powerset Counter = " + context.getCounter(Counters.POWERSETS).getValue());
+		System.out.println("Cleanup CandidateMapper: Inputlines Counter = " + context.getCounter(Counters.INPUTLINES).getValue());
 	}
 }
