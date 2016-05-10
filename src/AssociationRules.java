@@ -27,6 +27,10 @@ public class AssociationRules {
 
 	public static final int MIN_NUMBER_ELEMENTS = 2; // less than 2 doesn't make sense, need at least 2 elements to construct a rule ;)
 	
+	public static final String SPLIT_SIZE = "1024"; // = 1kb
+	public static final int NUM_REDUCE_TASKS = 4; // 
+	public static final long TASK_TIMEOUT = 3600000;
+
 	// commandline paramters:
 	private static int SUPPORT_THRESHOLD = 0;
 	private static int MAX_DEGREE = 1; // how many independent elements per rule should be used? e.g. 1: A==>B,C... or 3: A,B,C==>X,Y
@@ -81,11 +85,14 @@ public class AssociationRules {
 		conf.set("SUPPORT_THRESHOLD", ""+SUPPORT_THRESHOLD);
 		conf.set("MAX_DEGREE", ""+MAX_DEGREE);
 		conf.set("MIN_NUMBER_ELEMENTS", ""+MIN_NUMBER_ELEMENTS);
+		conf.set("mapreduce.input.fileinputformat.split.maxsize", SPLIT_SIZE);
+		conf.set("mapreduce.task.timeout",""+TASK_TIMEOUT);
 		Job job = new Job(conf, "AssociationRules_ExtractFrequentItems");
 		job.setJarByClass(AssociationRules.class);
 		job.setMapperClass(CandidateMapper.class);
 		job.setCombinerClass(CandidateCombiner.class);
 		job.setReducerClass(CandidateReducer.class);
+		job.setNumReduceTasks(NUM_REDUCE_TASKS);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
 		FileInputFormat.addInputPath(job, new Path(inputPath));
@@ -112,10 +119,13 @@ public class AssociationRules {
 		conf.set("SUPPORT_THRESHOLD", ""+SUPPORT_THRESHOLD);
 		conf.set("MAX_DEGREE", ""+MAX_DEGREE);
 		conf.set("MIN_NUMBER_ELEMENTS", ""+MIN_NUMBER_ELEMENTS);
+		// conf.set("mapreduce.input.fileinputformat.split.maxsize", SPLIT_SIZE);
+		conf.set("mapreduce.task.timeout",""+TASK_TIMEOUT);
 		Job job = new Job(conf, "AssociationRules_ExtractAssociationRules");
 		job.setJarByClass(AssociationRules.class);
 		job.setMapperClass(AssociationMapper.class);
 		job.setReducerClass(AssociationReducer.class);
+		// job.setNumReduceTasks(NUM_REDUCE_TASKS);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
 		FileInputFormat.addInputPath(job, new Path(inputPath));
