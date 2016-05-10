@@ -29,13 +29,18 @@ public class CandidateCombiner extends Reducer<Text,IntWritable,Text,IntWritable
 	*
 	*/
 
+	public static enum Counters{
+		DECLINED_SETS,
+		ACCEPTED_SETS
+	}
+
 	// key is subset of a basket, values are the counts
 	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 		int sum = 0;
 		for (IntWritable val : values) {
 			sum += val.get();
 		}
-
+		
 		/* 
 		* PROBLEM!! The counter that is used is global, hence will always have the number of total inputs...
 		* PROBLEM!! need to find a way to count the lines processed per node (--> that get send to one combiner)
@@ -46,11 +51,15 @@ public class CandidateCombiner extends Reducer<Text,IntWritable,Text,IntWritable
 		// equivalent to SON algorithm: only output those keys whose count exceeds a partial support threshold
 		// long numProcessedBaskets = context.getCounter(CandidateMapper.Counters.INPUTLINES).getValue();
 		// System.out.println("[Combiner] Number processed baskets: " + numProcessedBaskets);
-		// support threshold needs to be read from job configuration!
-		// Double partialSupportThreshold = (double) AssociationRules.SUPPORT_THRESHOLD/numProcessedBaskets;
+		// Double partialSupportThreshold = (double) Integer.parseInt(context.getConfiguration().get("SUPPORT_THRESHOLD"))/numProcessedBaskets;
 		// System.out.println("[Combiner] partial support threshold: " + partialSupportThreshold);
 		// if (sum >= partialSupportThreshold.intValue()){
 			context.write(key, new IntWritable(sum));
+			context.getCounter(Counters.ACCEPTED_SETS).increment(1);
+			System.out.println("CandidateCombiner accepted so far: " + context.getCounter(Counters.ACCEPTED_SETS).getValue());
+		// } else {
+		// 	context.getCounter(Counters.DECLINED_SETS).increment(1);
+		// 	System.out.println("CandidateCombiner declined so far (pst="+partialSupportThreshold+"): " + context.getCounter(Counters.DECLINED_SETS).getValue());
 		// }
 	}
 }
