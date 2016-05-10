@@ -29,11 +29,12 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 	*/
 
 	public static enum Counters{
-		FREQUENT_ITEMSETS
+		FREQUENT_ITEMSETS,
+		DECLINED_SETS
 	}
 
 	// by using this map the output of the reducer can be sorted by frequency
-	private Map<Text, IntWritable> resultMap = new HashMap<>();
+	// private Map<Text, IntWritable> resultMap = new HashMap<>();
 
 	// key is subset of a basket, values are the counts
 	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -42,29 +43,43 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 			sum += val.get();
 		}
 
-		// context.write(key, new IntWritable(sum));
 		// don't write on context but insert into result map
-		resultMap.put(new Text(key), new IntWritable(sum));
+		// resultMap.put(new Text(key), new IntWritable(sum));
+
+		// using the hashmap takes too long, let's try unsorted
+		int supportThreshold = Integer.parseInt(context.getConfiguration().get("SUPPORT_THRESHOLD"));
+
+		// assume there is only one reduce task at the moment!
+		// supportThreshold = Math.round(supportThreshold/AssociationRules.NUM_REDUCE_TASKS);
+		if (sum >= supportThreshold) {
+			context.write(new Text(key), new IntWritable(sum));
+			context.getCounter(Counters.FREQUENT_ITEMSETS).increment(1);
+			System.out.println("CandidateReducer accepted so far: " + context.getCounter(Counters.FREQUENT_ITEMSETS).getValue());
+		} else {
+			context.getCounter(Counters.DECLINED_SETS).increment(1);
+			System.out.println("CandidateReducer declined so far: " + context.getCounter(Counters.DECLINED_SETS).getValue());
+		}
 	}
 
 	public void cleanup(Context context) throws IOException, InterruptedException{
-		int supportThreshold = Integer.parseInt(context.getConfiguration().get("SUPPORT_THRESHOLD"));
-		System.out.println("CandidateReducer: support threshold = " + supportThreshold);
-		// sort keys by frequency and writes to context
-        Map<Text, IntWritable> sortedResultMap = Utils.sortMapByValues(resultMap);
+		// int supportThreshold = Integer.parseInt(context.getConfiguration().get("SUPPORT_THRESHOLD"));
+		// supportThreshold = Math.round(supportThreshold/AssociationRules.NUM_REDUCE_TASKS);
+		// System.out.println("CandidateReducer: support threshold = " + supportThreshold);
+		// // sort keys by frequency and writes to context
+  //       Map<Text, IntWritable> sortedResultMap = Utils.sortMapByValues(resultMap);
 
-        int numTotal = 0;
+  //       int numTotal = 0;
 
-        for (Text key : sortedResultMap.keySet()) {
-        	numTotal++;
-        	if (sortedResultMap.get(key).get() >= supportThreshold){
-        		context.write(key, sortedResultMap.get(key));
-        		context.getCounter(Counters.FREQUENT_ITEMSETS).increment(1);
-    		}
-        }
+  //       for (Text key : sortedResultMap.keySet()) {
+  //       	numTotal++;
+  //       	if (sortedResultMap.get(key).get() >= supportThreshold){
+  //       		context.write(key, sortedResultMap.get(key));
+  //       		context.getCounter(Counters.FREQUENT_ITEMSETS).increment(1);
+  //   		}
+  //       }
 
-        System.out.println("Cleanup: Number of distinct Subsets = " + numTotal);
-        System.out.println("Cleanup: Number of discarded Subsets = " + (numTotal-context.getCounter(Counters.FREQUENT_ITEMSETS).getValue()));
+  //       System.out.println("Cleanup: Number of distinct Subsets = " + numTotal);
+  //       System.out.println("Cleanup: Number of discarded Subsets = " + (numTotal-context.getCounter(Counters.FREQUENT_ITEMSETS).getValue()));
 
 	}
 }
