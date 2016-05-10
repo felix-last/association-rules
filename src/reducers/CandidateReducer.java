@@ -28,6 +28,10 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 	*
 	*/
 
+	public static enum Counters{
+		FREQUENT_ITEMSETS
+	}
+
 	// by using this map the output of the reducer can be sorted by frequency
 	private Map<Text, IntWritable> resultMap = new HashMap<>();
 
@@ -49,19 +53,18 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 		// sort keys by frequency and writes to context
         Map<Text, IntWritable> sortedResultMap = Utils.sortMapByValues(resultMap);
 
-        int numAccepted = 0;
         int numTotal = 0;
 
         for (Text key : sortedResultMap.keySet()) {
         	numTotal++;
         	if (sortedResultMap.get(key).get() >= supportThreshold){
         		context.write(key, sortedResultMap.get(key));
-        		numAccepted++;
+        		context.getCounter(Counters.FREQUENT_ITEMSETS).increment(1);
     		}
         }
 
         System.out.println("Cleanup: Number of distinct Subsets = " + numTotal);
-        System.out.println("Cleanup: Number of discarded Subsets = " + (numTotal-numAccepted));
+        System.out.println("Cleanup: Number of discarded Subsets = " + (numTotal-context.getCounter(Counters.FREQUENT_ITEMSETS).getValue()));
 
 	}
 }

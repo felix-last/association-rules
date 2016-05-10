@@ -30,6 +30,11 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,IntWritabl
 	*
 	*/
 
+
+	public static enum Counters{
+		RULES
+	}
+
 	// by using this map the output of the reducer can be sorted by frequency
 	private Map<Text, IntWritable> resultMap = new HashMap<>();
 	private List<String[]> blackList = new ArrayList();
@@ -86,14 +91,12 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,IntWritabl
 		// sort keys by frequency and writes to context
         Map<Text, IntWritable> sortedResultMap = Utils.sortMapByValues(resultMap);
 
-        int numTotal = 0;
-
         for (Text key : sortedResultMap.keySet()) {
-        	numTotal++;
+        	context.getCounter(Counters.RULES).increment(1);
     		context.write(key, sortedResultMap.get(key));
         }
 
-        System.out.println("Cleanup: Number of distinct rules = " + numTotal);
+        System.out.println("Cleanup: Number of distinct rules = " + context.getCounter(Counters.RULES).getValue());
 
 	}
 

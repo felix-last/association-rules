@@ -27,6 +27,11 @@ public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
 	*
 	*/
 
+
+	public static enum Counters{
+		PERMUTATIONS
+	}
+
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 		
 		// value is a set of elements (parts[0]) and a frequency (parts[1])
@@ -40,6 +45,7 @@ public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
 			String result = Utils.concatenateArray(allPermutations.get(i), ";");
 			// key = A;B;N, value = count
 			context.write(new Text(result), new IntWritable(Integer.parseInt(parts[1])));
+			context.getCounter(Counters.PERMUTATIONS).increment(1);
 		}
 
 	}

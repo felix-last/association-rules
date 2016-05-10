@@ -61,6 +61,7 @@ public class AssociationRules {
 
 		// calculate frequent itemsets
 		extractFrequentItems(initialInputPath, outputPath+"/frequentItemSets/");
+
 		// calculate association rules from frequent itemsets
 		extractAssociationRules(outputPath+"/frequentItemSets/", outputPath+"/rules");
 
@@ -74,6 +75,8 @@ public class AssociationRules {
 	*		Extracts itemsets from baskets and calculates frequency (result dependent on support threshold)
 	*/
 	public static void extractFrequentItems(String inputPath, String outputPath) throws Exception{
+		System.out.println("************************************************");
+		System.out.println("INFO: starting frequent itemset extraction.");
 		Configuration conf = new Configuration();
 		conf.set("SUPPORT_THRESHOLD", ""+SUPPORT_THRESHOLD);
 		conf.set("MAX_DEGREE", ""+MAX_DEGREE);
@@ -89,6 +92,10 @@ public class AssociationRules {
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));		
 		job.waitForCompletion(true);
 		System.out.println("INFO: frequent itemset extraction completed.");
+		System.out.println("INFO: number of processed baskets : " + job.getCounters().findCounter(CandidateMapper.Counters.INPUTLINES).getValue());
+		System.out.println("INFO: number of processed itemsets: " + job.getCounters().findCounter(CandidateMapper.Counters.POWERSETS).getValue());
+		System.out.println("INFO: number of frequent itemsets : " + job.getCounters().findCounter(CandidateReducer.Counters.FREQUENT_ITEMSETS).getValue());
+		System.out.println("************************************************");
 	}
 	
 
@@ -99,6 +106,8 @@ public class AssociationRules {
 	*		Extracts association rules based on frequent itemsets with a maximum number of independent items (max degree)
 	*/
 	public static void extractAssociationRules(String inputPath, String outputPath) throws Exception{
+		System.out.println("************************************************");
+		System.out.println("INFO: starting rules extraction.");
 		Configuration conf = new Configuration();
 		conf.set("SUPPORT_THRESHOLD", ""+SUPPORT_THRESHOLD);
 		conf.set("MAX_DEGREE", ""+MAX_DEGREE);
@@ -113,6 +122,9 @@ public class AssociationRules {
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));		
 		job.waitForCompletion(true);
 		System.out.println("INFO: rule extraction completed.");
+		System.out.println("INFO: total number of itemset permutations: " + job.getCounters().findCounter(AssociationMapper.Counters.PERMUTATIONS).getValue());
+		System.out.println("INFO: total number of extracted rules     : " + job.getCounters().findCounter(AssociationReducer.Counters.RULES).getValue());
+		System.out.println("************************************************");
 	}
 
 	private static void printUsage(){
