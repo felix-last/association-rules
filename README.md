@@ -2,11 +2,12 @@
 University project utilizing Hadoop MapReduce to derive association rules, a process also known as market basket analysis.
 
 ## Run
-	$ hadoop_exec run -j bin/AssociationRules.jar -i data/sample.txt --args 200
+	$ hadoop_exec run -j bin/AssociationRules.jar -i data/sample.txt --args 200+0.2
 
-"--args \<support threshold\>" allows for customization
+"--args \<support threshold\>+\<confidence threshold\>" allows for customization
 
-Support threshold 	: What is the minimum frequency a frequent itemset must have?
+Support threshold   	: What is the minimum frequency a frequent itemset must have?
+Confidence threshold 	: What is the minimum confidence a rule must have?
 
 ## Algorithm
 In order to identify association rules, items which are frequently bought together have to be found. Due to its distribution ability, the SON algorithm is used.

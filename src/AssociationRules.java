@@ -13,6 +13,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -26,6 +27,7 @@ public class AssociationRules {
 
 	// commandline paramters:
 	private static int SUPPORT_THRESHOLD = 100;
+	private static double CONFIDENCE_THRESHOLD = 0.3;
 	
 	public static void main(String[] args) throws Exception {
 
@@ -40,7 +42,8 @@ public class AssociationRules {
 		final String outputPath 		= otherArgs[1];
 
 		try{
-			SUPPORT_THRESHOLD = Integer.parseInt(otherArgs[2]);
+			SUPPORT_THRESHOLD = Integer.parseInt(otherArgs[2].split("\\+")[0]);
+			CONFIDENCE_THRESHOLD = Double.parseDouble(otherArgs[2].split("\\+")[1]);
 		} catch(Exception e){
 			// ignore failure use default paramters
 			System.out.println("INFO: couldn't convert additional parameters, using defaults");
@@ -49,7 +52,8 @@ public class AssociationRules {
 
 		System.out.println("      ***********************************");
 		System.out.println("INFO: running extraction with");
-		System.out.println("		support threshold 	= " + SUPPORT_THRESHOLD);
+		System.out.println("		support threshold   	= " + SUPPORT_THRESHOLD);
+		System.out.println("		confidence threshold 	= " + CONFIDENCE_THRESHOLD);
 		System.out.println("      ***********************************");
 
 		// calculate frequent itemsets
@@ -112,6 +116,7 @@ public class AssociationRules {
 		System.out.println("************************************************");
 		System.out.println("INFO: starting rules extraction.");
 		Configuration conf = new Configuration();
+		conf.set("CONFIDENCE_THRESHOLD", ""+CONFIDENCE_THRESHOLD);
 		conf.set("MAX_TUPEL_SIZE", ""+maxTupelSize);
 		conf.set("TMP_FILE_PATH", tmpPath);
 		Job job = new Job(conf, "AssociationRules_ExtractAssociationRules");
@@ -119,10 +124,10 @@ public class AssociationRules {
 		job.setMapperClass(AssociationMapper.class);
 		job.setReducerClass(AssociationReducer.class);
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
+		job.setOutputValueClass(DoubleWritable.class);
 
-		// ignore 1-tupel sets and ignore the path for maxTupelSize, since that one is empty per definition ;)
-		for (int i = 2; i < maxTupelSize; i++){ 
+		// ignore the path for maxTupelSize, since that one is empty per definition ;)
+		for (int i = 1; i < maxTupelSize; i++){ 
 			FileInputFormat.addInputPath(job, new Path(inputPath+""+i+"-tupel/"));
 		}
 
@@ -135,7 +140,8 @@ public class AssociationRules {
 	}
 
 	private static void printUsage(){
-		System.err.println("Usage: AssociationRules <in> <out> [<support threshold>]");
-		System.err.println("       e.g. AssociationRules data/sample.txt results 15]");
+		System.err.println("Usage: AssociationRules <in> <out> [<support threshold>+<confidence threshold>]");
+		System.err.println("       e.g. AssociationRules data/sample.txt results");
+		System.err.println("       e.g. AssociationRules data/sample.txt results 15+0.4");
 	}
 }

@@ -4,7 +4,7 @@ package AssociationRules.mappers;
 import AssociationRules.util.Utils;
 
 // hadoop dependencies
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.lang.InterruptedException;
 
 
-public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
+public class AssociationMapper extends Mapper<Object, Text, Text, DoubleWritable> {
 
 	/*
 	*		INPUT FORMAT
@@ -38,23 +38,19 @@ public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
 		String[] parts = value.toString().split("\t");
 		String[] raw = parts[0].split(";");
 
-		// disregards 1-tupel sets from itemset extraction 
-		if (raw.length > 1){
-			Integer[] rawConverted = new Integer[raw.length];
-			for (int i = 0; i < raw.length; i++){
-				rawConverted[i] = Integer.parseInt(raw[i]);
-			}
-
-			// write all possible sortings of the input set to the context
-			List<Integer[]> allPermutations = Utils.getAllPossiblePermutations(rawConverted);
-			String concatenated = "";
-			for (int i = 0; i < allPermutations.size(); i++) {
-				String result = Utils.concatenateArray(allPermutations.get(i), ";");
-				// key = A;B;N, value = count
-				context.write(new Text(result), new IntWritable(Integer.parseInt(parts[1])));
-				context.getCounter(Counters.PERMUTATIONS).increment(1);
-			}
+		Integer[] rawConverted = new Integer[raw.length];
+		for (int i = 0; i < raw.length; i++){
+			rawConverted[i] = Integer.parseInt(raw[i]);
 		}
 
+		// write all possible sortings of the input set to the context
+		List<Integer[]> allPermutations = Utils.getAllPossiblePermutations(rawConverted);
+		String concatenated = "";
+		for (int i = 0; i < allPermutations.size(); i++) {
+			String result = Utils.concatenateArray(allPermutations.get(i), ";");
+			// key = A;B;N, value = count
+			context.write(new Text(result), new DoubleWritable(Double.parseDouble(parts[1])));
+			context.getCounter(Counters.PERMUTATIONS).increment(1);
+		}
 	}
 }

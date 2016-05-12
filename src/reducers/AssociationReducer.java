@@ -4,7 +4,7 @@ package AssociationRules.reducers;
 import AssociationRules.util.Utils;
 
 // hadoop dependencies
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.lang.InterruptedException;
 import org.apache.hadoop.fs.FileSystem;
 
-public class AssociationReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
+public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleWritable> {
 
 	/*
 	*		INPUT FORMAT
@@ -27,7 +27,7 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,IntWritabl
 	*
 	*		OUTPUT FORMAT
 	*						key		: Rule <{independent items}==>{dependent items}>, e.g. A;B==>C
-	*						value	: frequency <frequency>, e.g. 5 
+	*						value	: confidence , e.g. 0.7
 	*
 	*/
 
@@ -37,7 +37,8 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,IntWritabl
 	}
 
 	// by using this map the output of the reducer can be sorted by frequency
-	private Map<Text, IntWritable> resultMap = new HashMap<>();
+	private Map<Text, DoubleWritable> resultMap = new HashMap<>();
+	private Map<Text, DoubleWritable> frequencies = new HashMap<>();
 
 	// blacklist ensures that rules aren't outputted multiple times
 	private List<String[]> blackList = new ArrayList();
@@ -60,44 +61,50 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,IntWritabl
 	}
 
 	@Override
-	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+	public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
 		// values should only have 1 element
 
-		int sum = 0;
+		Double sum = 0.0;
 		int count = 0;
-		for (IntWritable val : values){
+		for (DoubleWritable val : values){
 			sum += val.get();
 			count++;
 		}
 
+		// save to frequencies for confidence calculation
+		frequencies.put(new Text(key), new DoubleWritable(sum));
+
 		String[] raw = key.toString().split(";");
 
-		int maxDegree = raw.length-1;
+		// ensure 1-tupels are ignored
+		if (raw.length > 1){
+			int maxDegree = raw.length-1;
 
-		for (int deg = 1; deg <= maxDegree; deg++){
-			String outputKey = "";
-			if (raw.length-1 < deg){
-				break;
-			}
-			for (int i = 0; i<raw.length; i++){
-				outputKey += raw[i];
-				if (i == deg-1){
-					outputKey += "==>";
-				} else if (i<raw.length-1) {
-					outputKey += ";";
+			for (int deg = 1; deg <= maxDegree; deg++){
+				String outputKey = "";
+				if (raw.length-1 < deg){
+					break;
 				}
-			}
+				for (int i = 0; i<raw.length; i++){
+					outputKey += raw[i];
+					if (i == deg-1){
+						outputKey += "==>";
+					} else if (i<raw.length-1) {
+						outputKey += ";";
+					}
+				}
 
-			// if not all possible degrees of rules are used, duplicates will be produced 
-			// and should not be written to map (in order to prevent integrity issues)
-			if (resultMap.get(new Text(outputKey)) == null){
-				// check if for the independent elements a similar rule already exists
-				// to prevent this:
-				// A==>C;D	3
-				// A==>D;C	3				
-				if (!isBlacklisted(outputKey)){
-					resultMap.put(new Text(outputKey), new IntWritable(sum));
-					addToBlacklist(outputKey);
+				// if not all possible degrees of rules are used, duplicates will be produced 
+				// and should not be written to map (in order to prevent integrity issues)
+				if (resultMap.get(new Text(outputKey)) == null){
+					// check if for the independent elements a similar rule already exists
+					// to prevent this:
+					// A==>C;D	3
+					// A==>D;C	3				
+					if (!isBlacklisted(outputKey)){
+						resultMap.put(new Text(outputKey), new DoubleWritable(sum));
+						addToBlacklist(outputKey);
+					}
 				}
 			}
 		}
@@ -105,24 +112,47 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,IntWritabl
 
 
 	public void cleanup(Context context) throws IOException, InterruptedException{
-		// sort keys by frequency and writes to context
-        Map<Text, IntWritable> sortedResultMap = Utils.sortMapByValues(resultMap);
-
-        for (Text key : sortedResultMap.keySet()) {
+		Map<Text, DoubleWritable> intermediaryResultMap = new HashMap<>();
+		// prepare results for output
+        for (Text key : resultMap.keySet()) {
         	context.getCounter(Counters.RULES).increment(1);
-        	// transform key into actual item names
+        	
         	String[] comps = key.toString().split("==>");
+        	
+        	// calculate confidence
+        	Double confidence = resultMap.get(key).get();
+			try{
+				Double indepSupport = frequencies.get(new Text(comps[0])).get();
+        		confidence = (confidence/indepSupport);
+			} catch(Exception e){
+				System.out.println("Failed calculating confidence: "+e.getMessage());
+			}
+
+        	// transform key into actual item names
         	for (int i = 0; i < comps.length; i++){
         		String[] ks = comps[i].split(";");
-        		comps[i] = "";
+        		comps[i] = "{";
         		for (int k = 0; k < ks.length; k++){
         			comps[i] += keyItem.get(Integer.parseInt(ks[k]));
-        			if (k < ks.length-1) comps[i] += ";";
+        			if (k < ks.length-1) comps[i] += ",";
         		}
+        		comps[i] += "}";
         	}
         	Text out = new Text(""+comps[0]+"==>"+comps[1]);
-    		context.write(out, sortedResultMap.get(key));
+        	intermediaryResultMap.put(out, new DoubleWritable(confidence));
         }
+        resultMap = null;
+
+        // output sorted list
+		Map<Text, DoubleWritable> sortedResultMap = Utils.sortMapByValues(intermediaryResultMap);
+		intermediaryResultMap = null;
+		Double confidenceThreshold = Double.parseDouble(context.getConfiguration().get("CONFIDENCE_THRESHOLD"));
+    	for (Text key : sortedResultMap.keySet()){
+    		DoubleWritable val = sortedResultMap.get(key);
+    		if (val.get() > confidenceThreshold){
+    			context.write(key, val);
+    		}
+    	}
 
         System.out.println("Cleanup: Number of distinct rules = " + context.getCounter(Counters.RULES).getValue());
 
