@@ -24,18 +24,9 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 public class AssociationRules {
 
-
-	public static final int MIN_NUMBER_ELEMENTS = 2; // less than 2 doesn't make sense, need at least 2 elements to construct a rule ;)
-	
-	public static final String SPLIT_SIZE = "1024"; // = 1kb
-	public static final int NUM_REDUCE_TASKS = 0; // 
-	public static final long TASK_TIMEOUT = 3600000;
-
 	// commandline paramters:
-	private static int SUPPORT_THRESHOLD = 0;
-	private static int MAX_DEGREE = 1; // how many independent elements per rule should be used? e.g. 1: A==>B,C... or 3: A,B,C==>X,Y
+	private static int SUPPORT_THRESHOLD = 100;
 	
-
 	public static void main(String[] args) throws Exception {
 
 		Configuration conf = new Configuration();
@@ -49,8 +40,7 @@ public class AssociationRules {
 		final String outputPath 		= otherArgs[1];
 
 		try{
-			SUPPORT_THRESHOLD = Integer.parseInt(otherArgs[2].split("\\+")[0]);
-			MAX_DEGREE = Integer.parseInt(otherArgs[2].split("\\+")[1]);
+			SUPPORT_THRESHOLD = Integer.parseInt(otherArgs[2]);
 		} catch(Exception e){
 			// ignore failure use default paramters
 			System.out.println("INFO: couldn't convert additional parameters, using defaults");
@@ -60,14 +50,22 @@ public class AssociationRules {
 		System.out.println("      ***********************************");
 		System.out.println("INFO: running extraction with");
 		System.out.println("		support threshold 	= " + SUPPORT_THRESHOLD);
-		System.out.println("		maximum degree   	= " + MAX_DEGREE);
 		System.out.println("      ***********************************");
 
 		// calculate frequent itemsets
-		extractFrequentItems(initialInputPath, outputPath+"/frequentItemSets/");
+		boolean run = true;
+		int i = 1;
+		while (run){
+			Long freqItemCount = extractFrequentItems(initialInputPath, outputPath+"/frequentItemSets/"+i+"-tupel/", i, outputPath+"/helperfiles/");
+			i++;
+			if (freqItemCount == 0) {
+				run = false;
+			}
+		}
+		System.out.println("Stopped after trying with "+(i-1)+"-tupels");
 
 		// calculate association rules from frequent itemsets
-		extractAssociationRules(outputPath+"/frequentItemSets/", outputPath+"/rules");
+		extractAssociationRules(outputPath+"/frequentItemSets/", outputPath+"/rules", (i-1), outputPath+"/helperfiles/");
 
 	}
 
@@ -78,31 +76,29 @@ public class AssociationRules {
 	*		
 	*		Extracts itemsets from baskets and calculates frequency (result dependent on support threshold)
 	*/
-	public static void extractFrequentItems(String inputPath, String outputPath) throws Exception{
+	public static Long extractFrequentItems(String inputPath, String outputPath, int tupelSize, String tmpPath) throws Exception{
 		System.out.println("************************************************");
-		System.out.println("INFO: starting frequent itemset extraction.");
+		System.out.println("INFO: starting frequent itemset extraction for "+tupelSize+"-tupels.");
 		Configuration conf = new Configuration();
 		conf.set("SUPPORT_THRESHOLD", ""+SUPPORT_THRESHOLD);
-		conf.set("MAX_DEGREE", ""+MAX_DEGREE);
-		conf.set("MIN_NUMBER_ELEMENTS", ""+MIN_NUMBER_ELEMENTS);
-		conf.set("mapreduce.input.fileinputformat.split.maxsize", SPLIT_SIZE);
-		conf.set("mapreduce.task.timeout",""+TASK_TIMEOUT);
-		Job job = new Job(conf, "AssociationRules_ExtractFrequentItems");
+		conf.set("TUPEL_SIZE", ""+tupelSize);
+		conf.set("TMP_FILE_PATH", tmpPath);
+		Job job = new Job(conf, "AssociationRules_ExtractFrequentItems_"+tupelSize+"-tupel");
 		job.setJarByClass(AssociationRules.class);
 		job.setMapperClass(CandidateMapper.class);
 		job.setCombinerClass(CandidateCombiner.class);
 		job.setReducerClass(CandidateReducer.class);
-		// job.setNumReduceTasks(NUM_REDUCE_TASKS);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
 		FileInputFormat.addInputPath(job, new Path(inputPath));
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));		
 		job.waitForCompletion(true);
-		System.out.println("INFO: frequent itemset extraction completed.");
+		System.out.println("INFO: frequent itemset extraction completed for tupel size: "+tupelSize);
 		System.out.println("INFO: number of processed baskets : " + job.getCounters().findCounter(CandidateMapper.Counters.INPUTLINES).getValue());
-		System.out.println("INFO: number of processed itemsets: " + job.getCounters().findCounter(CandidateMapper.Counters.POWERSETS).getValue());
+		System.out.println("INFO: number of passed itemsets: " + job.getCounters().findCounter(CandidateMapper.Counters.WRITTENSETS).getValue());
 		System.out.println("INFO: number of frequent itemsets : " + job.getCounters().findCounter(CandidateReducer.Counters.FREQUENT_ITEMSETS).getValue());
 		System.out.println("************************************************");
+		return job.getCounters().findCounter(CandidateReducer.Counters.FREQUENT_ITEMSETS).getValue();
 	}
 	
 
@@ -112,23 +108,24 @@ public class AssociationRules {
 	*		
 	*		Extracts association rules based on frequent itemsets with a maximum number of independent items (max degree)
 	*/
-	public static void extractAssociationRules(String inputPath, String outputPath) throws Exception{
+	public static void extractAssociationRules(String inputPath, String outputPath, int maxTupelSize, String tmpPath) throws Exception{
 		System.out.println("************************************************");
 		System.out.println("INFO: starting rules extraction.");
 		Configuration conf = new Configuration();
-		conf.set("SUPPORT_THRESHOLD", ""+SUPPORT_THRESHOLD);
-		conf.set("MAX_DEGREE", ""+MAX_DEGREE);
-		conf.set("MIN_NUMBER_ELEMENTS", ""+MIN_NUMBER_ELEMENTS);
-		// conf.set("mapreduce.input.fileinputformat.split.maxsize", SPLIT_SIZE);
-		conf.set("mapreduce.task.timeout",""+TASK_TIMEOUT);
+		conf.set("MAX_TUPEL_SIZE", ""+maxTupelSize);
+		conf.set("TMP_FILE_PATH", tmpPath);
 		Job job = new Job(conf, "AssociationRules_ExtractAssociationRules");
 		job.setJarByClass(AssociationRules.class);
 		job.setMapperClass(AssociationMapper.class);
 		job.setReducerClass(AssociationReducer.class);
-		// job.setNumReduceTasks(NUM_REDUCE_TASKS);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
-		FileInputFormat.addInputPath(job, new Path(inputPath));
+
+		// ignore 1-tupel sets and ignore the path for maxTupelSize, since that one is empty per definition ;)
+		for (int i = 2; i < maxTupelSize; i++){ 
+			FileInputFormat.addInputPath(job, new Path(inputPath+""+i+"-tupel/"));
+		}
+
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));		
 		job.waitForCompletion(true);
 		System.out.println("INFO: rule extraction completed.");
@@ -138,7 +135,7 @@ public class AssociationRules {
 	}
 
 	private static void printUsage(){
-		System.err.println("Usage: AssociationRules <in> <out> [<support threshold>+<max degree>]");
-		System.err.println("       e.g. AssociationRules data/sample.txt results 15+3]");
+		System.err.println("Usage: AssociationRules <in> <out> [<support threshold>]");
+		System.err.println("       e.g. AssociationRules data/sample.txt results 15]");
 	}
 }
