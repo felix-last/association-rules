@@ -51,13 +51,13 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 
 		// assume there is only one reduce task at the moment!
 		// supportThreshold = Math.round(supportThreshold/AssociationRules.NUM_REDUCE_TASKS);
-		if (sum >= supportThreshold) {
+		if (sum >= supportThreshold){
 			context.write(new Text(key), new IntWritable(sum));
 			context.getCounter(Counters.FREQUENT_ITEMSETS).increment(1);
 			System.out.println("CandidateReducer accepted so far: " + context.getCounter(Counters.FREQUENT_ITEMSETS).getValue());
-		} else {
+		} else{
 			context.getCounter(Counters.DECLINED_SETS).increment(1);
-			System.out.println("CandidateReducer declined so far: " + context.getCounter(Counters.DECLINED_SETS).getValue());
+			System.out.println("CandidateReducer accepted so far: " + context.getCounter(Counters.DECLINED_SETS).getValue());
 		}
 	}
 
