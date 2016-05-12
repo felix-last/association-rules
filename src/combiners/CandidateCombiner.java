@@ -1,8 +1,5 @@
 package AssociationRules.combiners;
 
-//  if counter of mapper needs to be accessed import mapper class:
-// import AssociationRules.mappers.CandidateMapper;
-
 // package dependencies
 import AssociationRules.util.Utils;
 
@@ -20,46 +17,21 @@ public class CandidateCombiner extends Reducer<Text,IntWritable,Text,IntWritable
 
 	/*
 	*		INPUT FORMAT
-	*						key		: Itemset <{itemset}>, e.g. A;B;C
+	*						key		: Itemset <{itemset}>, e.g. 1;2;3
 	*						value	: 1	(count is always 1 ;) ) 
 	*
 	*		OUTPUT FORMAT
-	*						key		: frequent itemset <{itemset}>, e.g. A;B;C
+	*						key		: frequent itemset <{itemset}>, e.g. 1;2;3
 	*						value	: frequency of itemset <frequency>, e.g. 5 
 	*
 	*/
 
-	public static enum Counters{
-		DECLINED_SETS,
-		ACCEPTED_SETS
-	}
 
-	// key is subset of a basket, values are the counts
 	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 		int sum = 0;
 		for (IntWritable val : values) {
 			sum += val.get();
 		}
-		
-		/* 
-		* PROBLEM!! The counter that is used is global, hence will always have the number of total inputs...
-		* PROBLEM!! need to find a way to count the lines processed per node (--> that get send to one combiner)
-		* PROBLEM!! Actually this might also not work
-		* PROBLEM!! Combiner doesn't wait until ever mapper ist finished, but until a certain amount of buffer is filled
-		* PROBLEM!! Source: https://wiki.apache.org/hadoop/HadoopMapReduce
-		*/
-		// equivalent to SON algorithm: only output those keys whose count exceeds a partial support threshold
-		// long numProcessedBaskets = context.getCounter(CandidateMapper.Counters.INPUTLINES).getValue();
-		// System.out.println("[Combiner] Number processed baskets: " + numProcessedBaskets);
-		// Double partialSupportThreshold = (double) Integer.parseInt(context.getConfiguration().get("SUPPORT_THRESHOLD"))/numProcessedBaskets;
-		// System.out.println("[Combiner] partial support threshold: " + partialSupportThreshold);
-		// if (sum >= partialSupportThreshold.intValue()){
-			context.write(key, new IntWritable(sum));
-			context.getCounter(Counters.ACCEPTED_SETS).increment(1);
-			System.out.println("CandidateCombiner accepted so far: " + context.getCounter(Counters.ACCEPTED_SETS).getValue());
-		// } else {
-		// 	context.getCounter(Counters.DECLINED_SETS).increment(1);
-		// 	System.out.println("CandidateCombiner declined so far (pst="+partialSupportThreshold+"): " + context.getCounter(Counters.DECLINED_SETS).getValue());
-		// }
+		context.write(key, new IntWritable(sum));
 	}
 }
