@@ -19,10 +19,10 @@ public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
 	/*
 	*		INPUT FORMAT
 	*						key		: lineidentifier
-	*						value	: frequent itemset <{itemset}>\t<frequency>, e.g. A;B;C	3
+	*						value	: frequent itemset <{itemset}>\t<frequency>, e.g. 1;2;3	3
 	*
 	*		OUTPUT FORMAT
-	*						key		: Itemset <{itemset}>, e.g. A;B;C
+	*						key		: Itemset <{itemset}>, e.g. 1;2;3
 	*						value	: frequency <frequency>, e.g. 3
 	*
 	*/
@@ -38,14 +38,22 @@ public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
 		String[] parts = value.toString().split("\t");
 		String[] raw = parts[0].split(";");
 
-		// write all possible sortings of the input set to the context
-		List<String[]> allPermutations = Utils.getAllPossiblePermutations(raw);
-		String concatenated = "";
-		for (int i = 0; i < allPermutations.size(); i++) {
-			String result = Utils.concatenateArray(allPermutations.get(i), ";");
-			// key = A;B;N, value = count
-			context.write(new Text(result), new IntWritable(Integer.parseInt(parts[1])));
-			context.getCounter(Counters.PERMUTATIONS).increment(1);
+		// disregards 1-tupel sets from itemset extraction 
+		if (raw.length > 1){
+			Integer[] rawConverted = new Integer[raw.length];
+			for (int i = 0; i < raw.length; i++){
+				rawConverted[i] = Integer.parseInt(raw[i]);
+			}
+
+			// write all possible sortings of the input set to the context
+			List<Integer[]> allPermutations = Utils.getAllPossiblePermutations(rawConverted);
+			String concatenated = "";
+			for (int i = 0; i < allPermutations.size(); i++) {
+				String result = Utils.concatenateArray(allPermutations.get(i), ";");
+				// key = A;B;N, value = count
+				context.write(new Text(result), new IntWritable(Integer.parseInt(parts[1])));
+				context.getCounter(Counters.PERMUTATIONS).increment(1);
+			}
 		}
 
 	}
