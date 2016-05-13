@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Stack;
 import java.util.Iterator;
 import java.util.Comparator;
+import java.lang.StringBuilder;
 
 import java.io.OutputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -228,32 +230,50 @@ public class Utils {
     */
     public static Object deserializeObject(FileSystem fs, String pathStr) throws Exception{
         byte[] objectBytes = null;
-        // try{
-            Path path = new Path(pathStr);
-            InputStream in = fs.open(path);
 
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            while ((bytesRead = in.read(buffer)) != -1){
-                output.write(buffer, 0, bytesRead);
-            }
-            objectBytes = output.toByteArray();
-        // } catch(Exception e){
-            
-        // }
+        Path path = new Path(pathStr);
+        InputStream in = fs.open(path);
+
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = in.read(buffer)) != -1){
+            output.write(buffer, 0, bytesRead);
+        }
+        objectBytes = output.toByteArray();
+
         return convertToObject(objectBytes);
     }
 
     public static void serializeObject(Object input, FileSystem fs, String pathStr) throws Exception{
-        // try{
-            Path path = new Path(pathStr);
-            OutputStream out = fs.create(path);
-            out.write(convertToBytes(input));
-            out.close();
-        // } catch(Exception e){
-        //     //
-        // }
+        Path path = new Path(pathStr);
+        if (fs.exists(path)) {
+            fs.delete(path, true);
+        }
+        OutputStream out = fs.create(path);
+        out.write(convertToBytes(input));
+        out.close();
+    }
+
+    public static void serializeHashMapReadable(Map<Integer, String> input, FileSystem fs, String pathStr) throws Exception{ 
+        Path path = new Path(pathStr);
+        if (fs.exists(path)) {
+            fs.delete(path, true);
+        }
+        FSDataOutputStream out = fs.create(path);
+
+        boolean first = true;
+        for (Integer key : input.keySet()) {
+            if (first) {
+                first = false;
+            } else {
+                out.writeBytes("\n");
+            }
+            out.writeBytes(""+key);
+            out.writeBytes("\t");
+            out.writeBytes(""+input.get(key));
+        }
+        out.close();
     }
 
     private static byte[] convertToBytes(Object input){

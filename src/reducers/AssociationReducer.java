@@ -36,6 +36,9 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 		RULES
 	}
 
+	private String componentDelimiter = "==>";
+	private String itemSeparator = ";";
+
 	// by using this map the output of the reducer can be sorted by frequency
 	private Map<Text, DoubleWritable> resultMap = new HashMap<>();
 	private Map<Text, DoubleWritable> frequencies = new HashMap<>();
@@ -58,6 +61,10 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 		} catch(Exception e){
 			System.err.println("Failed deserialization of item key mapping: "+e.getMessage());
 		}
+
+		// set component delimiter and item separator to configuration
+		componentDelimiter = context.getConfiguration().get("RULE_COMPONENT_DELIMITER");
+		itemSeparator = context.getConfiguration().get("RULE_ITEM_SEPARATOR");
 	}
 
 	@Override
@@ -88,7 +95,7 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 				for (int i = 0; i<raw.length; i++){
 					outputKey += raw[i];
 					if (i == deg-1){
-						outputKey += "==>";
+						outputKey += componentDelimiter;
 					} else if (i<raw.length-1) {
 						outputKey += ";";
 					}
@@ -110,14 +117,14 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 		}
 	}
 
-
+	@Override
 	public void cleanup(Context context) throws IOException, InterruptedException{
 		Map<Text, DoubleWritable> intermediaryResultMap = new HashMap<>();
 		// prepare results for output
         for (Text key : resultMap.keySet()) {
         	context.getCounter(Counters.RULES).increment(1);
         	
-        	String[] comps = key.toString().split("==>");
+        	String[] comps = key.toString().split(componentDelimiter);
         	
         	// calculate confidence
         	Double confidence = resultMap.get(key).get();
@@ -134,11 +141,11 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
         		comps[i] = "{";
         		for (int k = 0; k < ks.length; k++){
         			comps[i] += keyItem.get(Integer.parseInt(ks[k]));
-        			if (k < ks.length-1) comps[i] += ",";
+        			if (k < ks.length-1) comps[i] += itemSeparator;
         		}
         		comps[i] += "}";
         	}
-        	Text out = new Text(""+comps[0]+"==>"+comps[1]);
+        	Text out = new Text(""+comps[0]+componentDelimiter+comps[1]);
         	intermediaryResultMap.put(out, new DoubleWritable(confidence));
         }
         resultMap = null;
@@ -160,7 +167,7 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 
 	private boolean isBlacklisted(String rule){
 		boolean blacklisted = false;
-		String[] inputComponents = rule.split("==>");
+		String[] inputComponents = rule.split(componentDelimiter);
 		for (int i = 0; i<2; i++){
 			String[] tmp = inputComponents[i].split(";");
 			Arrays.sort(tmp);
@@ -178,7 +185,7 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 	}
 
 	private void addToBlacklist(String rule){
-		String[] ruleComponents = rule.split("==>");
+		String[] ruleComponents = rule.split(componentDelimiter);
 		for (int i = 0; i<2; i++){
 			String[] tmp = ruleComponents[i].split(";");
 			Arrays.sort(tmp);

@@ -51,6 +51,8 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	public static Set<Integer> whitelist = new HashSet<>();
 	public static boolean noWhitelist = false;
 
+
+	@Override
 	public void setup(Context context) throws IOException, InterruptedException {
 		// try loading of helper files, such as
 		// 		-	mapping of items to keys
@@ -86,14 +88,15 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 
 	}
 
-	
+	@Override
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 
 		// increment input counter
 		context.getCounter(Counters.INPUTLINES).increment(1);
 		
 		// convert input into array
-		String[] raw = value.toString().split(",");
+		String splitter = context.getConfiguration().get("BASKET_ITEM_SPLITTER");
+		String[] raw = value.toString().split(splitter);
 
 		// convert item names into integers and keep mapping data in map
 		// check for whitelisted before continuing
@@ -136,6 +139,7 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		}
 	}
 
+	@Override
 	public void cleanup(Context context){
 		// serialize key - item mapping
 		String path = context.getConfiguration().get("TMP_FILE_PATH");
@@ -147,6 +151,9 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 
 			Utils.serializeObject(keyItem, fs, path+"key-itemMap.ser");
 	        System.out.println("Serialized key->item mapping "+path+"key-itemMap.ser");
+
+			Utils.serializeHashMapReadable(keyItem, fs, path+"mappingKeysToItems.txt");
+	        System.out.println("Outputted key->item mapping into readable format in "+path+"mappingKeysToItems.txt");
 
 		} catch(Exception e){
 			System.err.println("failed serialization of item key mapping: "+e.getMessage());

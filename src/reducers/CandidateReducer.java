@@ -36,25 +36,12 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 		DECLINED_SETS
 	}
 
-
-	// translate text to integer id
-	// public static Map<String, Integer> itemKey = new HashMap<>(); // not needed
-	// public static Map<Integer, String> keyItem = new HashMap<>();
-
 	// whitelist for SON approach
 	public static Set<Integer> whitelist = new HashSet<>();
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
-		// read the mapping of keys to item names
-		// try{
-		// 	String path = context.getConfiguration().get("TMP_FILE_PATH");
-		// 	FileSystem fs = FileSystem.get(context.getConfiguration());
-		// 	keyItem = (HashMap) Utils.deserializeObject(fs, path+"key-itemMap.ser");
-		// 	System.out.println("Successfully deserialized item key mapping.");
-		// } catch(Exception e){
-		// 	System.err.println("Failed deserialization of item key mapping: "+e.getMessage());
-		// }
+		//
 	}
 
 	// key is subset of a basket, values are the counts
@@ -71,7 +58,6 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 
 		// write itemset out if frequent
 		if (sum >= supportThreshold){
-			// context.write(new Text(keyItem.get(Integer.parseInt(key.toString()))), new IntWritable(sum));
 			for (String k : key.toString().split(";")){
 				whitelist.add(Integer.parseInt(k));
 			}
@@ -96,17 +82,6 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 		} catch(Exception e){
 			System.err.println("Whitelist not persisted for "+(tupelSize)+"-Tupel extraction.");
 		}
-
-		// serialize key - item mapping otherwise it's not available for the next job...
-		// if (keyItem.size() > 0){
-		// 	try{
-		// 		fs = FileSystem.get(context.getConfiguration());
-		// 		Utils.serializeObject(keyItem, fs, basePath+"key-itemMap.ser");
-		//         System.out.println("Serialized key->item mapping "+basePath+"key-itemMap.ser");
-		// 	} catch(Exception e){
-		// 		System.err.println("failed serialization of item key mapping: "+e.getMessage());
-		// 	}
-		// }
 
 		// log counters
 		System.out.println("CandidateReducer accepted sets: " + context.getCounter(Counters.FREQUENT_ITEMSETS).getValue());

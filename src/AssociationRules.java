@@ -18,12 +18,20 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.fs.FileSystem;
 
 // general dependencies
 
 
 
 public class AssociationRules {
+
+	private static final String BASKET_ITEM_SPLITTER = ","; // regex to split baskets into items, depending on input file
+	private static final String RULE_COMPONENT_DELIMITER = "->";
+	private static final String RULE_ITEM_SEPARATOR = ",";
+
+
+	private static final Boolean KEEP_HELPER_FILES = false;
 
 	// commandline paramters:
 	private static int SUPPORT_THRESHOLD = 100;
@@ -71,6 +79,9 @@ public class AssociationRules {
 		// calculate association rules from frequent itemsets
 		extractAssociationRules(outputPath+"/frequentItemSets/", outputPath+"/rules", (i-1), outputPath+"/helperfiles/");
 
+
+		// cleanup
+		cleanup(outputPath);
 	}
 
 
@@ -86,6 +97,7 @@ public class AssociationRules {
 		Configuration conf = new Configuration();
 		conf.set("SUPPORT_THRESHOLD", ""+SUPPORT_THRESHOLD);
 		conf.set("TUPEL_SIZE", ""+tupelSize);
+		conf.set("BASKET_ITEM_SPLITTER", BASKET_ITEM_SPLITTER);
 		conf.set("TMP_FILE_PATH", tmpPath);
 		Job job = new Job(conf, "AssociationRules_ExtractFrequentItems_"+tupelSize+"-tupel");
 		job.setJarByClass(AssociationRules.class);
@@ -118,6 +130,8 @@ public class AssociationRules {
 		Configuration conf = new Configuration();
 		conf.set("CONFIDENCE_THRESHOLD", ""+CONFIDENCE_THRESHOLD);
 		conf.set("MAX_TUPEL_SIZE", ""+maxTupelSize);
+		conf.set("RULE_COMPONENT_DELIMITER", RULE_COMPONENT_DELIMITER);
+		conf.set("RULE_ITEM_SEPARATOR", RULE_ITEM_SEPARATOR);
 		conf.set("TMP_FILE_PATH", tmpPath);
 		Job job = new Job(conf, "AssociationRules_ExtractAssociationRules");
 		job.setJarByClass(AssociationRules.class);
@@ -137,6 +151,38 @@ public class AssociationRules {
 		System.out.println("INFO: total number of itemset permutations: " + job.getCounters().findCounter(AssociationMapper.Counters.PERMUTATIONS).getValue());
 		System.out.println("INFO: total number of extracted rules     : " + job.getCounters().findCounter(AssociationReducer.Counters.RULES).getValue());
 		System.out.println("************************************************");
+	}
+
+	private static void cleanup(String outputPath){
+		if (!KEEP_HELPER_FILES){
+			try{
+				FileSystem fs = FileSystem.get(new Configuration());
+				Path path;
+				// delete mappings
+				path = new Path(outputPath+"/helperfiles/item-keyMap.ser");
+		        if (fs.exists(path)) {
+		            fs.delete(path, true);
+		        }
+		        path = new Path(outputPath+"/helperfiles/key-itemMap.ser");
+		        if (fs.exists(path)) {
+		            fs.delete(path, true);
+		        }
+		        // delete whitelists
+		        boolean stop = false;
+		        int i = 0;
+		        while (!stop){
+		        	i++;	
+		        	path = new Path(outputPath+"/helperfiles/whitelist_"+i+"_tupel.ser");
+			        if (fs.exists(path)) {
+			            fs.delete(path, true);
+			        } else {
+			        	stop = true;
+			        }
+		        }
+		    } catch(Exception e){
+		    	//
+		    }
+		}
 	}
 
 	private static void printUsage(){

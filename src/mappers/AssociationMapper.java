@@ -32,6 +32,7 @@ public class AssociationMapper extends Mapper<Object, Text, Text, DoubleWritable
 		PERMUTATIONS
 	}
 
+	@Override
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 		
 		// value is a set of elements (parts[0]) and a frequency (parts[1])
