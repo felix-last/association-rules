@@ -11,6 +11,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 // general dependencies
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 	}
 
 	// whitelist for SON approach
-	public static Set<Integer> whitelist = new HashSet<>();
+	public static Set<String> whitelist = new HashSet<>();
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
@@ -58,9 +59,7 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 
 		// write itemset out if frequent
 		if (sum >= supportThreshold){
-			for (String k : key.toString().split(";")){
-				whitelist.add(Integer.parseInt(k));
-			}
+			addToWhitelist(key);
 			context.write(new Text(key.toString()), new IntWritable(sum));
 			context.getCounter(Counters.FREQUENT_ITEMSETS).increment(1);
 		} else{
@@ -87,5 +86,11 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 		System.out.println("CandidateReducer accepted sets: " + context.getCounter(Counters.FREQUENT_ITEMSETS).getValue());
 		System.out.println("CandidateReducer declined sets: " + context.getCounter(Counters.DECLINED_SETS).getValue());
 
+	}
+
+	private void addToWhitelist(Text key){
+		String[] parts = key.toString().split(";");
+		Arrays.sort(parts);
+		whitelist.add(Utils.concatenateArray(parts, ";"));
 	}
 }

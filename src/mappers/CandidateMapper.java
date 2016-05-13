@@ -48,8 +48,11 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	public static Map<Integer, String> keyItem = new HashMap<>();
 
 	// whitelist for candidate set generation (SON Approach)
-	public static Set<Integer> whitelist = new HashSet<>();
+	public static Set<String> whitelist = new HashSet<>();
 	public static boolean noWhitelist = false;
+
+	// tupel size of curren iteration
+	public static int numElements = 0;
 
 
 	@Override
@@ -83,9 +86,11 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		} catch(Exception e){
 			System.out.println("No Whitelist file found from previous "+(tupelSize-1)+"-Tupel extraction.");
 			noWhitelist = true;
-			whitelist = new HashSet<Integer>();
+			whitelist = new HashSet<String>();
 		}
 
+		// get tupel size of iteration
+		numElements = Integer.parseInt(context.getConfiguration().get("TUPEL_SIZE"));
 	}
 
 	@Override
@@ -99,8 +104,6 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		String[] raw = value.toString().split(splitter);
 
 		// convert item names into integers and keep mapping data in map
-		// check for whitelisted before continuing
-		boolean isAllowed = true;
 		Integer[] rawConverted = new Integer[raw.length];
 		for (int i = 0; i < raw.length; i++){
 			Integer id = 0;
@@ -113,19 +116,23 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 				keyItem.put(id, raw[i]);
 			}
 			rawConverted[i] = id;
-			// check if id is on whitelist (only if whitelist exists), if not, do not continue
-			if (!whitelist.contains(id)) {
-				isAllowed = false;
-				context.getCounter(Counters.REJECTED_WL).increment(1);
+		}
+
+		// check if all subsets (size tupelSize-1) of set is on whitelist
+		boolean isAllowed = true;
+		if (!noWhitelist){
+			List<Set<Integer>> confirmationSet = Utils.getSubsets(Arrays.asList(rawConverted), numElements-1);
+			Iterator<Set<Integer>> confSetIterator = confirmationSet.iterator();
+			while (confSetIterator.hasNext()){
+				if (!isWhitelisted(confSetIterator.next())) isAllowed = false;
 			}
 		}
 
-		if (isAllowed || noWhitelist){
+		if (isAllowed){
 			// convert to set (ensures that there are no duplicates)
 			List<Integer> inputSet = Arrays.asList(rawConverted);
 
 			// create every possible subset (consisting of numElements)
-			int numElements = Integer.parseInt(context.getConfiguration().get("TUPEL_SIZE"));
 			List<Set<Integer>> powerset = Utils.getSubsets(inputSet, numElements);
 
 			// write each concatenated set to context with counter 1
@@ -136,6 +143,8 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 				context.write(new Text(result), one);
 				context.getCounter(Counters.WRITTENSETS).increment(1);
 			}
+		} else {
+			context.getCounter(Counters.REJECTED_WL).increment(1);
 		}
 	}
 
@@ -165,5 +174,15 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		System.out.println("Cleanup CandidateMapper: Rejected_WL Counter = " + context.getCounter(Counters.REJECTED_WL).getValue());
 	}
 
+	private boolean isWhitelisted(Set<Integer> input){
+		boolean whitelisted = true;
+		// prepare input key for comparison
+		Integer[] comb =  input.toArray(new Integer[0]);
+		Arrays.sort(comb);
+		String k = Utils.concatenateArray(comb, ";");
+		// check in whitelist
+		if (!whitelist.contains(k)) whitelisted = false;
+		return whitelisted;
+	}
 
 }
