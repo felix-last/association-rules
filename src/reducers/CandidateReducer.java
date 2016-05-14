@@ -82,7 +82,7 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 		try{
 			fs = FileSystem.get(context.getConfiguration());
 			Utils.serializeObject(whitelist, fs, basePath+"whitelist_"+(tupelSize)+"_tupel.ser");
-			System.out.println("Whitelist persisted for "+(tupelSize)+"-Tupel extraction.");
+			System.out.println("Whitelist persisted for "+(tupelSize)+"-Tupel extraction with size "+whitelist.size()+" and cardinality "+whitelist.cardinality()+".");
 		} catch(Exception e){
 			System.err.println("Whitelist not persisted for "+(tupelSize)+"-Tupel extraction.");
 		}
