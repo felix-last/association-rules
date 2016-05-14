@@ -9,11 +9,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 // general dependencies
-import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.HashMap;
+import java.util.BitSet;
 import java.io.IOException;
 import java.lang.InterruptedException;
 import org.apache.hadoop.fs.FileSystem;
@@ -38,7 +34,7 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 	}
 
 	// whitelist for SON approach
-	public static Set<String> whitelist = new HashSet<>();
+	public static BitSet whitelist = new BitSet();
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
@@ -89,8 +85,7 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 	}
 
 	private void addToWhitelist(Text key){
-		String[] parts = key.toString().split(";");
-		Arrays.sort(parts);
-		whitelist.add(Utils.concatenateArray(parts, ";"));
+		Integer hash = Utils.hashKey(key.toString());
+		whitelist.set(hash);
 	}
 }

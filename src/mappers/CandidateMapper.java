@@ -10,9 +10,9 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 // general dependencies
 import java.util.Set;
+import java.util.BitSet;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
@@ -48,7 +48,7 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	public static Map<Integer, String> keyItem = new HashMap<>();
 
 	// whitelist for candidate set generation (SON Approach)
-	public static Set<String> whitelist = new HashSet<>();
+	public static BitSet whitelist = new BitSet();
 	public static boolean noWhitelist = false;
 
 	// tupel size of curren iteration
@@ -81,12 +81,12 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		// try loading of whitelist
 		try{
 			fs = FileSystem.get(context.getConfiguration());
-			whitelist = (HashSet) Utils.deserializeObject(fs, basePath+"whitelist_"+(tupelSize-1)+"_tupel.ser");
+			whitelist = (BitSet) Utils.deserializeObject(fs, basePath+"whitelist_"+(tupelSize-1)+"_tupel.ser");
 			System.out.println("Whitelist file found from previous "+(tupelSize-1)+"-Tupel extraction and loaded.");
 		} catch(Exception e){
 			System.out.println("No Whitelist file found from previous "+(tupelSize-1)+"-Tupel extraction.");
 			noWhitelist = true;
-			whitelist = new HashSet<String>();
+			whitelist = new BitSet();
 		}
 
 		// get tupel size of iteration
@@ -175,13 +175,15 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	}
 
 	private boolean isWhitelisted(Set<Integer> input){
+		String key = Utils.concatenateArray(input.toArray(new Integer[0]), ";");
+		Integer hash = Utils.hashKey(key);
 		boolean whitelisted = true;
-		// prepare input key for comparison
-		Integer[] comb =  input.toArray(new Integer[0]);
-		Arrays.sort(comb);
-		String k = Utils.concatenateArray(comb, ";");
-		// check in whitelist
-		if (!whitelist.contains(k)) whitelisted = false;
+		try{
+			whitelisted = whitelist.get(hash);
+		} catch(Exception e){
+			// probably index out of bounds -> but thats okay, that just means that the key is not on the whitelist!
+			whitelisted = false;
+		}
 		return whitelisted;
 	}
 

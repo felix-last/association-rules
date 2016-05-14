@@ -330,4 +330,16 @@ public class Utils {
         }
         return o;
     }
+
+    /*
+    *  creates a number from a string ("A;B;C;...") that is always the same for the same string (kind of a hashfunction)
+    */
+    public static Integer hashKey(String key){
+        String[] parts = key.split(";");
+        Integer result = 1;
+        for (int i = 0; i < parts.length; i++){
+            result = result * Integer.parseInt(parts[i]);
+        }
+        return result;
+    }
 }
