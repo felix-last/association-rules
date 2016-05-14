@@ -34,11 +34,24 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 	}
 
 	// whitelist for SON approach
-	public static BitSet whitelist = new BitSet();
+	private static BitSet whitelist = new BitSet();
+
+	// support threshold
+	private static int supportThreshold = 0;
+
+	// helper files location
+	private static String basePath = "";
+
+	// tupel size of current iteration
+	private static Integer tupelSize = 0;
+
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
-		//
+		// read configuration
+		supportThreshold = Integer.parseInt(context.getConfiguration().get("SUPPORT_THRESHOLD"));
+		basePath = context.getConfiguration().get("TMP_FILE_PATH");
+		tupelSize = Integer.parseInt(context.getConfiguration().get("TUPEL_SIZE"));
 	}
 
 	// key is subset of a basket, values are the counts
@@ -50,8 +63,6 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 			sum += val.get();
 		}
 
-		// get support threshold
-		int supportThreshold = Integer.parseInt(context.getConfiguration().get("SUPPORT_THRESHOLD"));
 
 		// write itemset out if frequent
 		if (sum >= supportThreshold){
@@ -67,8 +78,6 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 	public void cleanup(Context context) throws IOException, InterruptedException{
 	
 		// write whitelist to fs for use in the next mapper iteration 
-		String basePath = context.getConfiguration().get("TMP_FILE_PATH");
-		Integer tupelSize = Integer.parseInt(context.getConfiguration().get("TUPEL_SIZE"));
 		FileSystem fs = null;
 		try{
 			fs = FileSystem.get(context.getConfiguration());

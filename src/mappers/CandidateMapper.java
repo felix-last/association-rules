@@ -44,25 +44,36 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	private final static IntWritable one = new IntWritable(1);
 
 	// translate text to integer id
-	public static Map<String, Integer> itemKey = new HashMap<>();
-	public static Map<Integer, String> keyItem = new HashMap<>();
+	private static Map<String, Integer> itemKey = new HashMap<>();
+	private static Map<Integer, String> keyItem = new HashMap<>();
 
 	// whitelist for candidate set generation (SON Approach)
-	public static BitSet whitelist = new BitSet();
-	public static boolean noWhitelist = false;
+	private static BitSet whitelist = new BitSet();
+	private static boolean noWhitelist = false;
 
-	// tupel size of curren iteration
-	public static int numElements = 0;
+	// tupel size of current iteration
+	private static int tupelSize = 0;
+
+	// input file splitter
+	private static String splitter = "\\.";
+
+	// helperfiles location
+	private static String basePath = "";
 
 
 	@Override
 	public void setup(Context context) throws IOException, InterruptedException {
+		
+		// read configuration 
+
+		basePath = context.getConfiguration().get("TMP_FILE_PATH");
+		tupelSize = Integer.parseInt(context.getConfiguration().get("TUPEL_SIZE"));
+		splitter = context.getConfiguration().get("BASKET_ITEM_SPLITTER");
+		
 		// try loading of helper files, such as
 		// 		-	mapping of items to keys
 		// 		-	whitelist of previous iteration 
 
-		String basePath = context.getConfiguration().get("TMP_FILE_PATH");
-		Integer tupelSize = Integer.parseInt(context.getConfiguration().get("TUPEL_SIZE"));
 		FileSystem fs = null;
 
 		// try loading of mapping data
@@ -88,9 +99,6 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 			noWhitelist = true;
 			whitelist = new BitSet();
 		}
-
-		// get tupel size of iteration
-		numElements = Integer.parseInt(context.getConfiguration().get("TUPEL_SIZE"));
 	}
 
 	@Override
@@ -100,7 +108,6 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		context.getCounter(Counters.INPUTLINES).increment(1);
 		
 		// convert input into array
-		String splitter = context.getConfiguration().get("BASKET_ITEM_SPLITTER");
 		String[] raw = value.toString().split(splitter);
 
 		// convert item names into integers and keep mapping data in map
@@ -121,7 +128,7 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		// check if all subsets (size tupelSize-1) of set is on whitelist
 		boolean isAllowed = true;
 		if (!noWhitelist){
-			List<Set<Integer>> confirmationSet = Utils.getSubsets(Arrays.asList(rawConverted), numElements-1);
+			List<Set<Integer>> confirmationSet = Utils.getSubsets(Arrays.asList(rawConverted), tupelSize-1);
 			Iterator<Set<Integer>> confSetIterator = confirmationSet.iterator();
 			while (confSetIterator.hasNext()){
 				if (!isWhitelisted(confSetIterator.next())) isAllowed = false;
@@ -132,8 +139,8 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 			// convert to set (ensures that there are no duplicates)
 			List<Integer> inputSet = Arrays.asList(rawConverted);
 
-			// create every possible subset (consisting of numElements)
-			List<Set<Integer>> powerset = Utils.getSubsets(inputSet, numElements);
+			// create every possible subset (consisting of tupelSize)
+			List<Set<Integer>> powerset = Utils.getSubsets(inputSet, tupelSize);
 
 			// write each concatenated set to context with counter 1
 			Iterator<Set<Integer>> it = powerset.iterator();
@@ -151,18 +158,17 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	@Override
 	public void cleanup(Context context){
 		// serialize key - item mapping
-		String path = context.getConfiguration().get("TMP_FILE_PATH");
 		try{
 			FileSystem fs = FileSystem.get(context.getConfiguration());
 				
-			Utils.serializeObject(itemKey, fs, path+"item-keyMap.ser");
-	        System.out.println("Serialized item->key mapping "+path+"item-keyMap.ser");
+			Utils.serializeObject(itemKey, fs, basePath+"item-keyMap.ser");
+	        System.out.println("Serialized item->key mapping "+basePath+"item-keyMap.ser");
 
-			Utils.serializeObject(keyItem, fs, path+"key-itemMap.ser");
-	        System.out.println("Serialized key->item mapping "+path+"key-itemMap.ser");
+			Utils.serializeObject(keyItem, fs, basePath+"key-itemMap.ser");
+	        System.out.println("Serialized key->item mapping "+basePath+"key-itemMap.ser");
 
-			Utils.serializeHashMapReadable(keyItem, fs, path+"mappingKeysToItems.txt");
-	        System.out.println("Outputted key->item mapping into readable format in "+path+"mappingKeysToItems.txt");
+			Utils.serializeHashMapReadable(keyItem, fs, basePath+"mappingKeysToItems.txt");
+	        System.out.println("Outputted key->item mapping into readable format in "+basePath+"mappingKeysToItems.txt");
 
 		} catch(Exception e){
 			System.err.println("failed serialization of item key mapping: "+e.getMessage());

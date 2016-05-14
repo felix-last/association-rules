@@ -36,9 +36,6 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 		RULES
 	}
 
-	private String componentDelimiter = "==>";
-	private String itemSeparator = ";";
-
 	// by using this map the output of the reducer can be sorted by frequency
 	private Map<Text, DoubleWritable> resultMap = new HashMap<>();
 	private Map<Text, DoubleWritable> frequencies = new HashMap<>();
@@ -48,23 +45,34 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 
 	// translate item name to integer id
 	// public static Map<String, Integer> itemKey = new HashMap<>(); // not needed
-	public static Map<Integer, String> keyItem = new HashMap<>();
+	private static Map<Integer, String> keyItem = new HashMap<>();
+
+	// helper files location
+	private static String basePath = "";
+
+	// how to separate rule components: e.g. A;B==>C
+	private static String componentDelimiter = "==>";
+	private static String itemSeparator = ";";
+
+	// confidence threshold
+	private static Double confidenceThreshold = 0.5;
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
+		// read configuration
+		basePath = context.getConfiguration().get("TMP_FILE_PATH");
+		componentDelimiter = context.getConfiguration().get("RULE_COMPONENT_DELIMITER");
+		itemSeparator = context.getConfiguration().get("RULE_ITEM_SEPARATOR");
+		confidenceThreshold = Double.parseDouble(context.getConfiguration().get("CONFIDENCE_THRESHOLD"));
+
 		// read the mapping of keys to item names
 		try{
-			String path = context.getConfiguration().get("TMP_FILE_PATH");
 			FileSystem fs = FileSystem.get(context.getConfiguration());
-			keyItem = (HashMap) Utils.deserializeObject(fs, path+"key-itemMap.ser");
+			keyItem = (HashMap) Utils.deserializeObject(fs, basePath+"key-itemMap.ser");
 			System.out.println("Successfully deserialized item key mapping.");
 		} catch(Exception e){
 			System.err.println("Failed deserialization of item key mapping: "+e.getMessage());
 		}
-
-		// set component delimiter and item separator to configuration
-		componentDelimiter = context.getConfiguration().get("RULE_COMPONENT_DELIMITER");
-		itemSeparator = context.getConfiguration().get("RULE_ITEM_SEPARATOR");
 	}
 
 	@Override
@@ -153,7 +161,6 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
         // output sorted list
 		Map<Text, DoubleWritable> sortedResultMap = Utils.sortMapByValues(intermediaryResultMap);
 		intermediaryResultMap = null;
-		Double confidenceThreshold = Double.parseDouble(context.getConfiguration().get("CONFIDENCE_THRESHOLD"));
     	for (Text key : sortedResultMap.keySet()){
     		DoubleWritable val = sortedResultMap.get(key);
     		if (val.get() > confidenceThreshold){
