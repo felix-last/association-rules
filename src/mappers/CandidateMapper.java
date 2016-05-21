@@ -133,18 +133,7 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 			Set<Integer> subset = it.next();
 			Integer[] subsetArray = subset.toArray(new Integer[subset.size()]);
 			
-			// check if all subsets (size tupelSize-1) of set are on whitelist
-			boolean isAllowed = true;
-			if (!noWhitelist){
-				List<Set<Integer>> confirmationSet = Utils.getSubsets(Arrays.asList(subsetArray), tupelSize-1);
-				Iterator<Set<Integer>> confSetIterator = confirmationSet.iterator();
-				while (confSetIterator.hasNext()){
-					Set<Integer> toTest = confSetIterator.next();
-					if (!isWhitelisted(toTest)) isAllowed = false;
-				}
-			}
-
-			if (isAllowed){
+			if (noWhitelist || isWhitelisted(subsetArray)){
 				String result = Utils.concatenateArray(subsetArray, ";");
 				context.write(new Text(result), one);
 				context.getCounter(Counters.WRITTENSETS).increment(1);
@@ -179,6 +168,20 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		System.out.println("Cleanup CandidateMapper: Rejected_WL Counter = " + context.getCounter(Counters.REJECTED_WL).getValue());
 	}
 
+
+	// method to check if the subsets of the inputset are whitelisted or not
+	private boolean isWhitelisted(Integer[] input){
+		// check if all subsets (size tupelSize-1) of set are on whitelist
+		boolean isAllowed = true;
+		List<Set<Integer>> confirmationSet = Utils.getSubsets(Arrays.asList(input), input.length-1);
+		Iterator<Set<Integer>> confSetIterator = confirmationSet.iterator();
+		while (confSetIterator.hasNext()){
+			Set<Integer> toTest = confSetIterator.next();
+			if (!isWhitelisted(toTest)) isAllowed = false;
+		}
+		return isAllowed;
+	}
+	// method to check if an itemset is on the whitelist or not
 	private boolean isWhitelisted(Set<Integer> input){
 		String key = Utils.concatenateArray(input.toArray(new Integer[0]), ";");
 		Integer hash = Utils.hashKey(key);
@@ -191,5 +194,6 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		}
 		return whitelisted;
 	}
+
 
 }
