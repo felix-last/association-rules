@@ -1,0 +1,65 @@
+# Preformance Boosters
+
+## Iterative Approach
+
+To identify rules, every existing subset of the input baskets has to be counted in the whole database. That means, for each basket the powersets have to be generated and counted. The generation of powersets is highly expensive since it follows a complexity of O^n (n being the number of items in the basket). Therefore it should be avoided to blindly generate the baskets powersets even though they might all be unfrequent (imagine a basket of 15 items, which isn't unusual, it would mean to count ~32000 subsets). Due to the monotocity of frequent itemsets, it is possible first count all the single items, then count all the pairs, then count all the triples, etc, until the algorithm doesn't find any tupel with a count larger than the support threshold. Since rules are typically rather small and only consist of a couple of items, it's e.g. only necessary to consider the first 16 subsets of a 15 items basket.
+
+
+## whitelist
+
+the whitelists are created as BitSets in order to use minimal space. Each position in the BitSet represents an Itemset. To use the whitelist an itemset (e.g. {1;4;16}) has to be converted into an Integer representing the position in the BitSet. The whitelist at a given position has the value true (1), if the itemset hashed to this position is frequent and false (0) if it is unfrequent (less counts than the support threshold). 
+Depending on the Hashfunction that converts the itemsets to integers, a position in the BitSet represents a bucket of itemsets or single itemsets. There are different aspects to consider when choosing the hashfunction.
+
+### hash function
+
+Generally a hash function that generates unique integers for a given itemset enables the algorithm to discard ALL itemsets that are unfrequent based on the idea of monotocity. That means that each iteration the mapper will only pass on the itemsets that are not unfrequent based on the previous iteration.
+Thus the workload for the algorithm is minimal. BUT keeping a complete list of items and itemsets and a flag indicating that they are frequent, doesn't scale very well. The amount of data that has to be kept in main memory is huge.
+
+Therefore a trade-off has to be made - hashing itemsets non-unique into buckets and flagging a bucket as frequent as soon as one of the input itemsets was frequent. Now the size of the bucket list is directly dependent on the hashfunction. The hashfunction decides how many itemsets are hashed to the same bucket - the more, the smaller the list, the less, the larger the list. 
+
+Tested implementations:
+(the following numbers are gathered in runs with a support threshold of 100)
+
+#### Hashing based on Addition
+Since the itemsets are sets of integers, a simple approach is to just sum the item ids and use the resulting integer as the position in the hashmap. The mapper counted the following:
+
+Iteration 1-size tupels (no whitelist yet):
+	discarded due to whitelist 	: 0
+	writtensets					: 43367
+	whitelist-filesize			: 97 bytes
+Iteration 2-size tupels:
+	discarded due to whitelist 	: 22242
+	writtensets					: 115036
+	whitelist-filesize			: 89 bytes
+Iteration 3-size tupels:
+	discarded due to whitelist 	: 254606
+	writtensets					: 144710
+	whitelist-filesize			: 89 bytes
+Iteration 4-size tupels:
+	discarded due to whitelist 	: 1096875
+	writtensets					: 1960
+	whitelist-filesize			: 73 bytes
+
+
+#### Hashing based on Multiplication
+Another simple approach is to multiply the item ids and use the resulting integer as the position in the hashmap. This generates a larger range of positions, thus making the buckets smaller and the hashing more unique. The mapper counted the following:
+
+Iteration 1-size tupels (no whitelist yet):
+	discarded due to whitelist 	: 0
+	writtensets					: 43367
+	whitelist-filesize			: 97 bytes
+Iteration 2-size tupels:
+	discarded due to whitelist 	: 22242
+	writtensets					: 115036
+	whitelist-filesize			: 505 bytes
+Iteration 3-size tupels:
+	discarded due to whitelist 	: 359618
+	writtensets					: 39698
+	whitelist-filesize			: 1.241 bytes
+Iteration 4-size tupels:
+	discarded due to whitelist 	: 1098416
+	writtensets					: 419
+	whitelist-filesize			: 73 bytes
+
+It's visible that the usage of the multiplication hash function does give an improvement on the rejection of itemsets, since it is more unique, but on the otherhand uses a much larger piece of main-memory (measured by the filesize of the serialization). In the example, with a support threshold of 100, using the addition of the item ids as the hashfunction keeps the whitelist under 100 bytes - whereas with multiplication the whitelist exceeds 1kb at iteration 3.
+The trade-off that has to be made is clear - if there is enough memory, one should use a more unique hash function and vice versa.

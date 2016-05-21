@@ -115,66 +115,7 @@ public class Utils {
     }
 
     /*
-    *   returns all possible subsets of a given input set
-    * Source: http://stackoverflow.com/questions/18800850/finding-all-subsets-of-a-set-powerset
-    */
-    public static HashSet<List<Integer>> powerSet(Set<Integer> inputSet){
-        return powerSet(inputSet, 0, -1);
-    }
-	public static HashSet<List<Integer>> powerSet(Set<Integer> inputSet, int minSubSetSize){
-		return powerSet(inputSet, 0, -1);
-	}
-	public static HashSet<List<Integer>> powerSet(Set<Integer> inputSet, int minSubSetSize, int maxSubSetSize){
-
-		// generate power set
-		List<Integer> mainList = new ArrayList<Integer>(inputSet);
-		powerSet = new HashSet();
-    	buildPowerSet(mainList, mainList.size(), minSubSetSize, maxSubSetSize);
-
-    	// remove all subsets with less items than minSubSetSize or more than maxSubSetSize if not null
-    	// TODO can this be included into the buildPowerSet()? would be more efficient than going through the set again
-    	// Iterator<List<int>> it = powerSet.iterator();
-    	// while (it.hasNext()){
-     //        List<int> set = it.next();
-    	// 	if (set.size() < minSubSetSize){
-    	// 		it.remove();
-    	// 	}
-     //        if (maxSubSetSize > -1){
-     //            if (set.size() > maxSubSetSize){
-     //                it.remove();
-     //            }
-     //        }
-    	// }
-
-    	// copy power set into temporary object
-    	HashSet<List<Integer>> out = new HashSet();
-    	out.addAll(powerSet);
-
-    	// clear powerSet to ensure integrity
-    	powerSet = null;
-
-	    return out;
-	}
-
-
-    /*
-    * Source: http://stackoverflow.com/questions/18800850/finding-all-subsets-of-a-set-powerset
-    */
-	private static void buildPowerSet(List<Integer> list, int count, int minAcceptanceSize, int maxAcceptanceSize){
-		boolean add = true;
-        if (list.size() < minAcceptanceSize) add = false;
-        if (maxAcceptanceSize > -1 && list.size() > maxAcceptanceSize) add = false; 
-        if (add) powerSet.add(list);
-
-	    for(int i=0; i<list.size(); i++){
-	        List<Integer> temp = new ArrayList<Integer>(list);
-	        temp.remove(i);
-	        buildPowerSet(temp, temp.size(), minAcceptanceSize, maxAcceptanceSize);
-		}
-	}
-
-    /*
-    *  alternative to power set generation
+    *  generate all subsets of given length k from an inputset 
     */
     public static List<Set<Integer>> getSubsets(List<Integer> superSet, int k) {
         List<Set<Integer>> res = new ArrayList<>();
@@ -335,18 +276,29 @@ public class Utils {
     *  creates a number from a string ("1;2;3;...") that is always the same for the same string (kind of a hashfunction)
     */
     public static Integer hashKey(String key){
-        // System.out.println("hash codes of String: "+key);
-
+        return hashKey(key, "addition");
+    }
+    public static Integer hashKey(String key, String type){
         // hash a key of integers to buckets (non-collision-free) trying to keep the size of the integer small 
         String[] parts = key.split(";");
-        // Integer result = 1;
-        Integer result = 0;
-        for (int i = 0; i < parts.length; i++){
-            // if (parts[i].length() > 0){
-                // result = result * Integer.parseInt(parts[i]);
-            result = result + Integer.parseInt(parts[i]);
-            // }
+        Integer result;
+        
+        switch (type){
+            case "addition":
+                result = 0;
+                for (int i = 0; i < parts.length; i++){
+                    result = result + Integer.parseInt(parts[i]);
+                }
+                break;
+            case "multiplication":
+            default:
+                result = 1;
+                for (int i = 0; i < parts.length; i++){
+                    result = result * Integer.parseInt(parts[i]);
+                }
+            break;
         }
+
         return  result;
     }
 }
