@@ -332,28 +332,21 @@ public class Utils {
     }
 
     /*
-    *  creates a number from a string ("A;B;C;...") that is always the same for the same string (kind of a hashfunction)
+    *  creates a number from a string ("1;2;3;...") that is always the same for the same string (kind of a hashfunction)
     */
     public static Integer hashKey(String key){
         // System.out.println("hash codes of String: "+key);
 
-        // approach 1:
-        // generally not collision safe
-        //  BUT a whitelist only contains keys of a specific tupel size -> multiplication is collision safe in that case
-        //  and also no duplicate keys, therefore the division should reduce the size a bit
-        //  ALSO hashing doesn't need to be collision free, that just means we're creating buckets of keys that will be dropped or accepted
+        // hash a key of integers to buckets (non-collision-free) trying to keep the size of the integer small 
         String[] parts = key.split(";");
-        Integer result = 1;
+        // Integer result = 1;
+        Integer result = 0;
         for (int i = 0; i < parts.length; i++){
-            result = result * Integer.parseInt(parts[i]);
+            // if (parts[i].length() > 0){
+                // result = result * Integer.parseInt(parts[i]);
+            result = result + Integer.parseInt(parts[i]);
+            // }
         }
-        // result = result/parts.length;
-        // System.out.println(""+result);
-
-        // approach 2
-        // result = key.hashCode();
-        // System.out.println(""+result);
-
         return  result;
     }
 }

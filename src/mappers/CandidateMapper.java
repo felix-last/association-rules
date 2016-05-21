@@ -88,12 +88,11 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 			System.out.println("No cached version of the items to key mapping found.");
 		}
 
-
 		// try loading of whitelist
 		try{
 			fs = FileSystem.get(context.getConfiguration());
 			whitelist = (BitSet) Utils.deserializeObject(fs, basePath+"whitelist_"+(tupelSize-1)+"_tupel.ser");
-			System.out.println("Whitelist file found from previous "+(tupelSize-1)+"-Tupel extraction and loaded.");
+			System.out.println("Whitelist file found from previous "+(tupelSize-1)+"-Tupel extraction and loaded with cardinality "+whitelist.cardinality()+".");
 		} catch(Exception e){
 			System.out.println("No Whitelist file found from previous "+(tupelSize-1)+"-Tupel extraction.");
 			noWhitelist = true;
@@ -125,33 +124,33 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 			rawConverted[i] = id;
 		}
 
-		// check if all subsets (size tupelSize-1) of set is on whitelist
-		boolean isAllowed = true;
-		if (!noWhitelist){
-			List<Set<Integer>> confirmationSet = Utils.getSubsets(Arrays.asList(rawConverted), tupelSize-1);
-			Iterator<Set<Integer>> confSetIterator = confirmationSet.iterator();
-			while (confSetIterator.hasNext()){
-				if (!isWhitelisted(confSetIterator.next())) isAllowed = false;
+		// create every possible subset (consisting of tupelSize)
+		List<Set<Integer>> powerset = Utils.getSubsets(Arrays.asList(rawConverted), tupelSize);
+
+		// write each concatenated set to context with counter 1 if allowed by whitelist
+		Iterator<Set<Integer>> it = powerset.iterator();
+		while (it.hasNext()){
+			Set<Integer> subset = it.next();
+			Integer[] subsetArray = subset.toArray(new Integer[subset.size()]);
+			
+			// check if all subsets (size tupelSize-1) of set are on whitelist
+			boolean isAllowed = true;
+			if (!noWhitelist){
+				List<Set<Integer>> confirmationSet = Utils.getSubsets(Arrays.asList(subsetArray), tupelSize-1);
+				Iterator<Set<Integer>> confSetIterator = confirmationSet.iterator();
+				while (confSetIterator.hasNext()){
+					Set<Integer> toTest = confSetIterator.next();
+					if (!isWhitelisted(toTest)) isAllowed = false;
+				}
 			}
-		}
 
-		if (isAllowed){
-			// convert to set (ensures that there are no duplicates)
-			List<Integer> inputSet = Arrays.asList(rawConverted);
-
-			// create every possible subset (consisting of tupelSize)
-			List<Set<Integer>> powerset = Utils.getSubsets(inputSet, tupelSize);
-
-			// write each concatenated set to context with counter 1
-			Iterator<Set<Integer>> it = powerset.iterator();
-			while (it.hasNext()){
-				Set<Integer> subset = it.next();
-				String result = Utils.concatenateArray(subset.toArray(new Integer[subset.size()]), ";");
+			if (isAllowed){
+				String result = Utils.concatenateArray(subsetArray, ";");
 				context.write(new Text(result), one);
 				context.getCounter(Counters.WRITTENSETS).increment(1);
+			} else {
+				context.getCounter(Counters.REJECTED_WL).increment(1);
 			}
-		} else {
-			context.getCounter(Counters.REJECTED_WL).increment(1);
 		}
 	}
 

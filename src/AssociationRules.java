@@ -31,7 +31,7 @@ public class AssociationRules {
 	private static final String RULE_ITEM_SEPARATOR = ",";
 
 
-	private static final Boolean KEEP_HELPER_FILES = false;
+	private static final Boolean KEEP_HELPER_FILES = true;
 
 	// commandline paramters:
 	private static int SUPPORT_THRESHOLD = 100;
@@ -161,11 +161,11 @@ public class AssociationRules {
 				// delete mappings
 				path = new Path(outputPath+"/helperfiles/item-keyMap.ser");
 		        if (fs.exists(path)) {
-		            fs.delete(path, true);
+		            fs.delete(path, false);
 		        }
 		        path = new Path(outputPath+"/helperfiles/key-itemMap.ser");
 		        if (fs.exists(path)) {
-		            fs.delete(path, true);
+		            fs.delete(path, false);
 		        }
 		        // delete whitelists
 		        boolean stop = false;
@@ -174,10 +174,15 @@ public class AssociationRules {
 		        	i++;	
 		        	path = new Path(outputPath+"/helperfiles/whitelist_"+i+"_tupel.ser");
 			        if (fs.exists(path)) {
-			            fs.delete(path, true);
+			            fs.delete(path, false);
 			        } else {
 			        	stop = true;
 			        }
+		        }
+		        // delete output of first job of last iteration (is empty file ;) )
+		        path = new Path(outputPath+"/frequentItemSets/"+(i-1)+"-tupel/");
+		        if (fs.exists(path)){
+		        	fs.delete(path, true);
 		        }
 		    } catch(Exception e){
 		    	//

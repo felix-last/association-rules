@@ -76,7 +76,9 @@ public class CandidateReducer extends Reducer<Text,IntWritable,Text,IntWritable>
 
 	@Override
 	public void cleanup(Context context) throws IOException, InterruptedException{
-	
+		// System.out.println("Whitelist: ");
+		// System.out.println(whitelist.toString());
+
 		// write whitelist to fs for use in the next mapper iteration 
 		FileSystem fs = null;
 		try{
