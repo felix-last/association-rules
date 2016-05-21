@@ -20,6 +20,29 @@ Therefore a trade-off has to be made - hashing itemsets non-unique into buckets 
 Tested implementations:
 (the following numbers are gathered in runs with a support threshold of 100)
 
+#### Hashing based on javas String.hashCode()
+Javas String Class provides a function to generate an integer value from a string, using prime number and character codes (this a very standard apporach to create hashes from strings that are very likely to be unique). The hashcode can be negative though, the algorithm uses the absolute hash code ((hashCode() >=0 )? hashCode() : hashCode()*-1). Using only the absolute hash code crashed the jvm due to heap space exhaustion. The absolute hash code range has been made smaller through division by 20 (this also means reducing the probability of uniqueness). The mapper counted the following:
+
+Iteration 1-size tupels (no whitelist yet):
+	discarded due to whitelist 	: 0
+	writtensets					: 43367
+	whitelist-filesize			: 385 bytes
+Iteration 2-size tupels:
+	discarded due to whitelist 	: 5070
+	writtensets					: 132208
+	whitelist-filesize			: 322.185 bytes
+Iteration 3-size tupels:
+	discarded due to whitelist 	: 337640
+	writtensets					: 61676
+	whitelist-filesize			: 13.109.905 bytes
+Iteration 4-size tupels:
+	discarded due to whitelist 	: 1097640
+	writtensets					: 1195
+	whitelist-filesize			: 73 bytes
+Total Application Runtime		: 2:16min
+
+
+
 #### Hashing based on Addition
 Since the itemsets are sets of integers, a simple approach is to just sum the item ids and use the resulting integer as the position in the hashmap. The mapper counted the following:
 
@@ -39,6 +62,8 @@ Iteration 4-size tupels:
 	discarded due to whitelist 	: 1096875
 	writtensets					: 1960
 	whitelist-filesize			: 73 bytes
+Total Application Runtime		: 2:17mins
+
 
 
 #### Hashing based on Multiplication
@@ -60,6 +85,9 @@ Iteration 4-size tupels:
 	discarded due to whitelist 	: 1098416
 	writtensets					: 419
 	whitelist-filesize			: 73 bytes
+Total Application Runtime		: 2:14mins
 
-It's visible that the usage of the multiplication hash function does give an improvement on the rejection of itemsets, since it is more unique, but on the otherhand uses a much larger piece of main-memory (measured by the filesize of the serialization). In the example, with a support threshold of 100, using the addition of the item ids as the hashfunction keeps the whitelist under 100 bytes - whereas with multiplication the whitelist exceeds 1kb at iteration 3.
-The trade-off that has to be made is clear - if there is enough memory, one should use a more unique hash function and vice versa.
+
+
+It's visible that the usage of the multiplication hash function does give an improvement on the rejection of itemsets, since it is more unique, but on the otherhand uses a much larger piece of main-memory (measured by the filesize of the serialization). In the example, with a support threshold of 100, using the addition of the item ids as the hashfunction keeps the whitelist under 100 bytes - whereas with multiplication the whitelist exceeds 1kb at iteration 3. Using javas String.hashCode() with the necessary alterations to make it work, is the worst of all 3 alternatives - it uses a large amount of space, plus doesn't give an improvement in terms of workload.
+The trade-off that has to be made is clear - if there is enough memory, one should use a more unique hash function and vice versa. One aspect any hashfunction should have is, to not distribute the hash codes normally or equally over the possible range, but to try push most of the codes to the beginning of the range, in order to keep the whole whitelist as short as possible.

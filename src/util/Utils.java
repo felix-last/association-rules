@@ -290,6 +290,10 @@ public class Utils {
                     result = result + Integer.parseInt(parts[i]);
                 }
                 break;
+            case "stringutils":
+                result = Math.round(key.hashCode()/20);
+                result = (result >= 0) ? result : result*(-1);
+                break;
             case "multiplication":
             default:
                 result = 1;

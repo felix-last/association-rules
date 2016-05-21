@@ -23,7 +23,6 @@ import org.apache.hadoop.fs.FileSystem;
 // general dependencies
 
 
-
 public class AssociationRules {
 
 	private static final String BASKET_ITEM_SPLITTER = ","; // regex to split baskets into items, depending on input file
@@ -31,6 +30,7 @@ public class AssociationRules {
 	private static final String RULE_ITEM_SEPARATOR = ",";
 
 
+	private static long APPLICATION_START_TIME = System.currentTimeMillis() / 1000L;
 	private static final Boolean KEEP_HELPER_FILES = true;
 
 	// commandline paramters:
@@ -82,6 +82,10 @@ public class AssociationRules {
 
 		// cleanup
 		cleanup(outputPath);
+
+		long endTime = System.currentTimeMillis() / 1000L;
+		String runtime = ""+ (int)Math.floor((endTime-APPLICATION_START_TIME)/60)+":"+(endTime-APPLICATION_START_TIME)%60+"mins";
+		System.out.println("Application runtime: "+runtime);
 	}
 
 
