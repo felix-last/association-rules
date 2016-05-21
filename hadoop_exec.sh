@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #	-------------------------------------------
-#		Version :	1.0.1
-#		Date 	:	09.05.2016
+#		Version :	1.0.2
+#		Date 	:	21.05.2016
 #	-------------------------------------------
 
 
@@ -84,9 +84,19 @@ compile () {
 
 	progress_echo "INFO: compiling java files"
 	if  [ $compileAll == true ]; then
-		javac $(find ./src -name "*.java") -cp $(hadoop classpath) -d ./
+		if javac $(find ./src -name "*.java") -cp $(hadoop classpath) -d ./; then
+			progress_echo "INFO: compiled sources successfully."
+		else 
+			progress_echo "ERROR: Failed compilation of java sources. See log for errors."
+			exit 1;
+		fi
 	else
-		javac ./src/$mainClass.java -cp $(hadoop classpath) -d ./
+		if javac ./src/$mainClass.java -cp $(hadoop classpath) -d ./; then
+			progress_echo "INFO: compiled sources successfully."
+		else 
+			progress_echo "ERROR: Failed compilation of java sources. See log for errors."
+			exit 1;
+		fi
 	fi
 
 	progress_echo "INFO: creating Manifest"
