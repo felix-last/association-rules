@@ -142,19 +142,7 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 			} catch(Exception e){
 				System.out.println("Failed calculating confidence: "+e.getMessage());
 			}
-
-        	// transform key into actual item names
-        	for (int i = 0; i < comps.length; i++){
-        		String[] ks = comps[i].split(";");
-        		comps[i] = "{";
-        		for (int k = 0; k < ks.length; k++){
-        			comps[i] += keyItem.get(Integer.parseInt(ks[k]));
-        			if (k < ks.length-1) comps[i] += itemSeparator;
-        		}
-        		comps[i] += "}";
-        	}
-        	Text out = new Text(""+comps[0]+componentDelimiter+comps[1]);
-        	intermediaryResultMap.put(out, new DoubleWritable(confidence));
+        	intermediaryResultMap.put(new Text(key.toString()), new DoubleWritable(confidence));
         }
         resultMap = null;
 
@@ -163,8 +151,19 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 		intermediaryResultMap = null;
     	for (Text key : sortedResultMap.keySet()){
     		DoubleWritable val = sortedResultMap.get(key);
-    		if (val.get() > confidenceThreshold){
-    			context.write(key, val);
+    		if (val.get() >= confidenceThreshold){
+	        	// // transform key into actual item names
+	        	String[] comps = key.toString().split(componentDelimiter);
+	        	for (int i = 0; i < comps.length; i++){
+	        		String[] ks = comps[i].split(";");
+	        		comps[i] = "{";
+	        		for (int k = 0; k < ks.length; k++){
+	        			comps[i] += keyItem.get(Integer.parseInt(ks[k]));
+	        			if (k < ks.length-1) comps[i] += itemSeparator;
+	        		}
+	        		comps[i] += "}";
+	        	}
+    			context.write(new Text(""+comps[0]+componentDelimiter+comps[1]), val);
     		}
     	}
 

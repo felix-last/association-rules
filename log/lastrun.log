@@ -1,13 +1,13 @@
-16/05/21 15:05:33 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-16/05/21 15:05:35 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-16/05/21 15:05:36 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
+16/05/22 10:51:16 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+16/05/22 10:51:18 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+16/05/22 10:51:19 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
 Deleted results
-16/05/21 15:05:37 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-16/05/21 15:05:39 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-16/05/21 15:05:42 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-16/05/21 15:05:43 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
+16/05/22 10:51:21 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+16/05/22 10:51:23 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+16/05/22 10:51:25 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+16/05/22 10:51:26 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
 Deleted data/sampleMauro.txt
-16/05/21 15:05:44 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+16/05/22 10:51:27 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
       ***********************************
 INFO: running extraction with
 		support threshold   	= 100
@@ -15,21 +15,21 @@ INFO: running extraction with
       ***********************************
 ************************************************
 INFO: starting frequent itemset extraction for 1-tupels.
-16/05/21 15:05:47 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-16/05/21 15:05:48 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
-16/05/21 15:05:48 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
-16/05/21 15:05:48 INFO input.FileInputFormat: Total input paths to process : 1
-16/05/21 15:05:49 INFO mapreduce.JobSubmitter: number of splits:1
-16/05/21 15:05:49 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0077
-16/05/21 15:05:49 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0077
-16/05/21 15:05:49 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0077/
-16/05/21 15:05:49 INFO mapreduce.Job: Running job: job_1463830108286_0077
-16/05/21 15:05:57 INFO mapreduce.Job: Job job_1463830108286_0077 running in uber mode : false
-16/05/21 15:05:57 INFO mapreduce.Job:  map 0% reduce 0%
-16/05/21 15:06:03 INFO mapreduce.Job:  map 100% reduce 0%
-16/05/21 15:06:09 INFO mapreduce.Job:  map 100% reduce 100%
-16/05/21 15:06:09 INFO mapreduce.Job: Job job_1463830108286_0077 completed successfully
-16/05/21 15:06:09 INFO mapreduce.Job: Counters: 55
+16/05/22 10:51:30 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+16/05/22 10:51:30 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+16/05/22 10:51:32 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+16/05/22 10:51:32 INFO input.FileInputFormat: Total input paths to process : 1
+16/05/22 10:51:32 INFO mapreduce.JobSubmitter: number of splits:1
+16/05/22 10:51:32 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0087
+16/05/22 10:51:32 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0087
+16/05/22 10:51:32 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0087/
+16/05/22 10:51:32 INFO mapreduce.Job: Running job: job_1463830108286_0087
+16/05/22 10:51:41 INFO mapreduce.Job: Job job_1463830108286_0087 running in uber mode : false
+16/05/22 10:51:41 INFO mapreduce.Job:  map 0% reduce 0%
+16/05/22 10:51:48 INFO mapreduce.Job:  map 100% reduce 0%
+16/05/22 10:51:54 INFO mapreduce.Job:  map 100% reduce 100%
+16/05/22 10:51:55 INFO mapreduce.Job: Job job_1463830108286_0087 completed successfully
+16/05/22 10:51:55 INFO mapreduce.Job: Counters: 55
 	File System Counters
 		FILE: Number of bytes read=1588
 		FILE: Number of bytes written=239397
@@ -45,14 +45,14 @@ INFO: starting frequent itemset extraction for 1-tupels.
 		Launched map tasks=1
 		Launched reduce tasks=1
 		Data-local map tasks=1
-		Total time spent by all maps in occupied slots (ms)=4071
-		Total time spent by all reduces in occupied slots (ms)=3212
-		Total time spent by all map tasks (ms)=4071
-		Total time spent by all reduce tasks (ms)=3212
-		Total vcore-milliseconds taken by all map tasks=4071
-		Total vcore-milliseconds taken by all reduce tasks=3212
-		Total megabyte-milliseconds taken by all map tasks=4168704
-		Total megabyte-milliseconds taken by all reduce tasks=3289088
+		Total time spent by all maps in occupied slots (ms)=4330
+		Total time spent by all reduces in occupied slots (ms)=3320
+		Total time spent by all map tasks (ms)=4330
+		Total time spent by all reduce tasks (ms)=3320
+		Total vcore-milliseconds taken by all map tasks=4330
+		Total vcore-milliseconds taken by all reduce tasks=3320
+		Total megabyte-milliseconds taken by all map tasks=4433920
+		Total megabyte-milliseconds taken by all reduce tasks=3399680
 	Map-Reduce Framework
 		Map input records=9835
 		Map output records=43367
@@ -69,11 +69,11 @@ INFO: starting frequent itemset extraction for 1-tupels.
 		Shuffled Maps =1
 		Failed Shuffles=0
 		Merged Map outputs=1
-		GC time elapsed (ms)=153
+		GC time elapsed (ms)=181
 		CPU time spent (ms)=0
 		Physical memory (bytes) snapshot=0
 		Virtual memory (bytes) snapshot=0
-		Total committed heap usage (bytes)=301989888
+		Total committed heap usage (bytes)=289406976
 	AssociationRules.mappers.CandidateMapper$Counters
 		INPUTLINES=9835
 		ITEMS=169
@@ -100,20 +100,20 @@ INFO: number of frequent itemsets : 88
 ************************************************
 ************************************************
 INFO: starting frequent itemset extraction for 2-tupels.
-16/05/21 15:06:09 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
-16/05/21 15:06:09 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
-16/05/21 15:06:09 INFO input.FileInputFormat: Total input paths to process : 1
-16/05/21 15:06:09 INFO mapreduce.JobSubmitter: number of splits:1
-16/05/21 15:06:10 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0078
-16/05/21 15:06:10 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0078
-16/05/21 15:06:10 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0078/
-16/05/21 15:06:10 INFO mapreduce.Job: Running job: job_1463830108286_0078
-16/05/21 15:06:22 INFO mapreduce.Job: Job job_1463830108286_0078 running in uber mode : false
-16/05/21 15:06:22 INFO mapreduce.Job:  map 0% reduce 0%
-16/05/21 15:06:29 INFO mapreduce.Job:  map 100% reduce 0%
-16/05/21 15:06:34 INFO mapreduce.Job:  map 100% reduce 100%
-16/05/21 15:06:35 INFO mapreduce.Job: Job job_1463830108286_0078 completed successfully
-16/05/21 15:06:35 INFO mapreduce.Job: Counters: 54
+16/05/22 10:51:55 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+16/05/22 10:51:55 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+16/05/22 10:51:55 INFO input.FileInputFormat: Total input paths to process : 1
+16/05/22 10:51:56 INFO mapreduce.JobSubmitter: number of splits:1
+16/05/22 10:51:56 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0088
+16/05/22 10:51:56 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0088
+16/05/22 10:51:56 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0088/
+16/05/22 10:51:56 INFO mapreduce.Job: Running job: job_1463830108286_0088
+16/05/22 10:52:08 INFO mapreduce.Job: Job job_1463830108286_0088 running in uber mode : false
+16/05/22 10:52:08 INFO mapreduce.Job:  map 0% reduce 0%
+16/05/22 10:52:16 INFO mapreduce.Job:  map 100% reduce 0%
+16/05/22 10:52:22 INFO mapreduce.Job:  map 100% reduce 100%
+16/05/22 10:52:22 INFO mapreduce.Job: Job job_1463830108286_0088 completed successfully
+16/05/22 10:52:22 INFO mapreduce.Job: Counters: 54
 	File System Counters
 		FILE: Number of bytes read=45429
 		FILE: Number of bytes written=327079
@@ -121,7 +121,7 @@ INFO: starting frequent itemset extraction for 2-tupels.
 		FILE: Number of large read operations=0
 		FILE: Number of write operations=0
 		HDFS: Number of bytes read=519321
-		HDFS: Number of bytes written=13479
+		HDFS: Number of bytes written=13063
 		HDFS: Number of read operations=13
 		HDFS: Number of large read operations=0
 		HDFS: Number of write operations=9
@@ -129,14 +129,14 @@ INFO: starting frequent itemset extraction for 2-tupels.
 		Launched map tasks=1
 		Launched reduce tasks=1
 		Data-local map tasks=1
-		Total time spent by all maps in occupied slots (ms)=4697
-		Total time spent by all reduces in occupied slots (ms)=3098
-		Total time spent by all map tasks (ms)=4697
-		Total time spent by all reduce tasks (ms)=3098
-		Total vcore-milliseconds taken by all map tasks=4697
-		Total vcore-milliseconds taken by all reduce tasks=3098
-		Total megabyte-milliseconds taken by all map tasks=4809728
-		Total megabyte-milliseconds taken by all reduce tasks=3172352
+		Total time spent by all maps in occupied slots (ms)=5225
+		Total time spent by all reduces in occupied slots (ms)=3486
+		Total time spent by all map tasks (ms)=5225
+		Total time spent by all reduce tasks (ms)=3486
+		Total vcore-milliseconds taken by all map tasks=5225
+		Total vcore-milliseconds taken by all reduce tasks=3486
+		Total megabyte-milliseconds taken by all map tasks=5350400
+		Total megabyte-milliseconds taken by all reduce tasks=3569664
 	Map-Reduce Framework
 		Map input records=9835
 		Map output records=115036
@@ -153,11 +153,11 @@ INFO: starting frequent itemset extraction for 2-tupels.
 		Shuffled Maps =1
 		Failed Shuffles=0
 		Merged Map outputs=1
-		GC time elapsed (ms)=164
+		GC time elapsed (ms)=184
 		CPU time spent (ms)=0
 		Physical memory (bytes) snapshot=0
 		Virtual memory (bytes) snapshot=0
-		Total committed heap usage (bytes)=303562752
+		Total committed heap usage (bytes)=288882688
 	AssociationRules.mappers.CandidateMapper$Counters
 		INPUTLINES=9835
 		REJECTED_WL=22242
@@ -183,28 +183,28 @@ INFO: number of frequent itemsets : 207
 ************************************************
 ************************************************
 INFO: starting frequent itemset extraction for 3-tupels.
-16/05/21 15:06:35 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
-16/05/21 15:06:35 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
-16/05/21 15:06:35 INFO input.FileInputFormat: Total input paths to process : 1
-16/05/21 15:06:35 INFO mapreduce.JobSubmitter: number of splits:1
-16/05/21 15:06:35 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0079
-16/05/21 15:06:35 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0079
-16/05/21 15:06:35 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0079/
-16/05/21 15:06:35 INFO mapreduce.Job: Running job: job_1463830108286_0079
-16/05/21 15:06:47 INFO mapreduce.Job: Job job_1463830108286_0079 running in uber mode : false
-16/05/21 15:06:47 INFO mapreduce.Job:  map 0% reduce 0%
-16/05/21 15:06:54 INFO mapreduce.Job:  map 100% reduce 0%
-16/05/21 15:07:00 INFO mapreduce.Job:  map 100% reduce 100%
-16/05/21 15:07:01 INFO mapreduce.Job: Job job_1463830108286_0079 completed successfully
-16/05/21 15:07:01 INFO mapreduce.Job: Counters: 54
+16/05/22 10:52:22 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+16/05/22 10:52:22 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+16/05/22 10:52:22 INFO input.FileInputFormat: Total input paths to process : 1
+16/05/22 10:52:22 INFO mapreduce.JobSubmitter: number of splits:1
+16/05/22 10:52:22 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0089
+16/05/22 10:52:22 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0089
+16/05/22 10:52:22 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0089/
+16/05/22 10:52:22 INFO mapreduce.Job: Running job: job_1463830108286_0089
+16/05/22 10:52:35 INFO mapreduce.Job: Job job_1463830108286_0089 running in uber mode : false
+16/05/22 10:52:35 INFO mapreduce.Job:  map 0% reduce 0%
+16/05/22 10:52:43 INFO mapreduce.Job:  map 100% reduce 0%
+16/05/22 10:52:49 INFO mapreduce.Job:  map 100% reduce 100%
+16/05/22 10:52:49 INFO mapreduce.Job: Job job_1463830108286_0089 completed successfully
+16/05/22 10:52:50 INFO mapreduce.Job: Counters: 54
 	File System Counters
-		FILE: Number of bytes read=24222
-		FILE: Number of bytes written=284665
+		FILE: Number of bytes read=315437
+		FILE: Number of bytes written=867095
 		FILE: Number of read operations=0
 		FILE: Number of large read operations=0
 		FILE: Number of write operations=0
-		HDFS: Number of bytes read=519729
-		HDFS: Number of bytes written=12625
+		HDFS: Number of bytes read=519313
+		HDFS: Number of bytes written=11473
 		HDFS: Number of read operations=13
 		HDFS: Number of large read operations=0
 		HDFS: Number of write operations=9
@@ -212,41 +212,41 @@ INFO: starting frequent itemset extraction for 3-tupels.
 		Launched map tasks=1
 		Launched reduce tasks=1
 		Data-local map tasks=1
-		Total time spent by all maps in occupied slots (ms)=5339
-		Total time spent by all reduces in occupied slots (ms)=3387
-		Total time spent by all map tasks (ms)=5339
-		Total time spent by all reduce tasks (ms)=3387
-		Total vcore-milliseconds taken by all map tasks=5339
-		Total vcore-milliseconds taken by all reduce tasks=3387
-		Total megabyte-milliseconds taken by all map tasks=5467136
-		Total megabyte-milliseconds taken by all reduce tasks=3468288
+		Total time spent by all maps in occupied slots (ms)=6443
+		Total time spent by all reduces in occupied slots (ms)=3554
+		Total time spent by all map tasks (ms)=6443
+		Total time spent by all reduce tasks (ms)=3554
+		Total vcore-milliseconds taken by all map tasks=6443
+		Total vcore-milliseconds taken by all reduce tasks=3554
+		Total megabyte-milliseconds taken by all map tasks=6597632
+		Total megabyte-milliseconds taken by all reduce tasks=3639296
 	Map-Reduce Framework
 		Map input records=9835
-		Map output records=39698
-		Map output bytes=472477
-		Map output materialized bytes=24222
+		Map output records=144710
+		Map output bytes=1767341
+		Map output materialized bytes=315437
 		Input split bytes=124
-		Combine input records=39698
-		Combine output records=1729
-		Reduce input groups=1729
-		Reduce shuffle bytes=24222
-		Reduce input records=1729
+		Combine input records=144710
+		Combine output records=21848
+		Reduce input groups=21848
+		Reduce shuffle bytes=315437
+		Reduce input records=21848
 		Reduce output records=31
-		Spilled Records=3458
+		Spilled Records=43696
 		Shuffled Maps =1
 		Failed Shuffles=0
 		Merged Map outputs=1
-		GC time elapsed (ms)=207
+		GC time elapsed (ms)=271
 		CPU time spent (ms)=0
 		Physical memory (bytes) snapshot=0
 		Virtual memory (bytes) snapshot=0
-		Total committed heap usage (bytes)=304611328
+		Total committed heap usage (bytes)=311951360
 	AssociationRules.mappers.CandidateMapper$Counters
 		INPUTLINES=9835
-		REJECTED_WL=359618
-		WRITTENSETS=39698
+		REJECTED_WL=254606
+		WRITTENSETS=144710
 	AssociationRules.reducers.CandidateReducer$Counters
-		DECLINED_SETS=1698
+		DECLINED_SETS=21817
 		FREQUENT_ITEMSETS=31
 	Shuffle Errors
 		BAD_ID=0
@@ -261,33 +261,33 @@ INFO: starting frequent itemset extraction for 3-tupels.
 		Bytes Written=358
 INFO: frequent itemset extraction completed for tupel size: 3
 INFO: number of processed baskets : 9835
-INFO: number of passed itemsets: 39698
+INFO: number of passed itemsets: 144710
 INFO: number of frequent itemsets : 31
 ************************************************
 ************************************************
 INFO: starting frequent itemset extraction for 4-tupels.
-16/05/21 15:07:02 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
-16/05/21 15:07:02 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
-16/05/21 15:07:02 INFO input.FileInputFormat: Total input paths to process : 1
-16/05/21 15:07:02 INFO mapreduce.JobSubmitter: number of splits:1
-16/05/21 15:07:02 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0080
-16/05/21 15:07:02 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0080
-16/05/21 15:07:02 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0080/
-16/05/21 15:07:02 INFO mapreduce.Job: Running job: job_1463830108286_0080
-16/05/21 15:07:14 INFO mapreduce.Job: Job job_1463830108286_0080 running in uber mode : false
-16/05/21 15:07:14 INFO mapreduce.Job:  map 0% reduce 0%
-16/05/21 15:07:24 INFO mapreduce.Job:  map 46% reduce 0%
-16/05/21 15:07:26 INFO mapreduce.Job:  map 100% reduce 0%
-16/05/21 15:07:32 INFO mapreduce.Job:  map 100% reduce 100%
-16/05/21 15:07:32 INFO mapreduce.Job: Job job_1463830108286_0080 completed successfully
-16/05/21 15:07:32 INFO mapreduce.Job: Counters: 54
+16/05/22 10:52:50 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+16/05/22 10:52:50 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+16/05/22 10:52:50 INFO input.FileInputFormat: Total input paths to process : 1
+16/05/22 10:52:50 INFO mapreduce.JobSubmitter: number of splits:1
+16/05/22 10:52:51 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0090
+16/05/22 10:52:51 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0090
+16/05/22 10:52:51 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0090/
+16/05/22 10:52:51 INFO mapreduce.Job: Running job: job_1463830108286_0090
+16/05/22 10:53:04 INFO mapreduce.Job: Job job_1463830108286_0090 running in uber mode : false
+16/05/22 10:53:04 INFO mapreduce.Job:  map 0% reduce 0%
+16/05/22 10:53:15 INFO mapreduce.Job:  map 45% reduce 0%
+16/05/22 10:53:17 INFO mapreduce.Job:  map 100% reduce 0%
+16/05/22 10:53:23 INFO mapreduce.Job:  map 100% reduce 100%
+16/05/22 10:53:25 INFO mapreduce.Job: Job job_1463830108286_0090 completed successfully
+16/05/22 10:53:25 INFO mapreduce.Job: Counters: 54
 	File System Counters
-		FILE: Number of bytes read=181
-		FILE: Number of bytes written=236583
+		FILE: Number of bytes read=7148
+		FILE: Number of bytes written=250517
 		FILE: Number of read operations=0
 		FILE: Number of large read operations=0
 		FILE: Number of write operations=0
-		HDFS: Number of bytes read=520465
+		HDFS: Number of bytes read=519313
 		HDFS: Number of bytes written=11099
 		HDFS: Number of read operations=13
 		HDFS: Number of large read operations=0
@@ -296,41 +296,41 @@ INFO: starting frequent itemset extraction for 4-tupels.
 		Launched map tasks=1
 		Launched reduce tasks=1
 		Data-local map tasks=1
-		Total time spent by all maps in occupied slots (ms)=10676
-		Total time spent by all reduces in occupied slots (ms)=3260
-		Total time spent by all map tasks (ms)=10676
-		Total time spent by all reduce tasks (ms)=3260
-		Total vcore-milliseconds taken by all map tasks=10676
-		Total vcore-milliseconds taken by all reduce tasks=3260
-		Total megabyte-milliseconds taken by all map tasks=10932224
-		Total megabyte-milliseconds taken by all reduce tasks=3338240
+		Total time spent by all maps in occupied slots (ms)=11338
+		Total time spent by all reduces in occupied slots (ms)=3503
+		Total time spent by all map tasks (ms)=11338
+		Total time spent by all reduce tasks (ms)=3503
+		Total vcore-milliseconds taken by all map tasks=11338
+		Total vcore-milliseconds taken by all reduce tasks=3503
+		Total megabyte-milliseconds taken by all map tasks=11610112
+		Total megabyte-milliseconds taken by all reduce tasks=3587072
 	Map-Reduce Framework
 		Map input records=9835
-		Map output records=419
-		Map output bytes=5850
-		Map output materialized bytes=181
+		Map output records=1960
+		Map output bytes=28006
+		Map output materialized bytes=7148
 		Input split bytes=124
-		Combine input records=419
-		Combine output records=11
-		Reduce input groups=11
-		Reduce shuffle bytes=181
-		Reduce input records=11
+		Combine input records=1960
+		Combine output records=432
+		Reduce input groups=432
+		Reduce shuffle bytes=7148
+		Reduce input records=432
 		Reduce output records=0
-		Spilled Records=22
+		Spilled Records=864
 		Shuffled Maps =1
 		Failed Shuffles=0
 		Merged Map outputs=1
-		GC time elapsed (ms)=1171
+		GC time elapsed (ms)=1067
 		CPU time spent (ms)=0
 		Physical memory (bytes) snapshot=0
 		Virtual memory (bytes) snapshot=0
-		Total committed heap usage (bytes)=295698432
+		Total committed heap usage (bytes)=298319872
 	AssociationRules.mappers.CandidateMapper$Counters
 		INPUTLINES=9835
-		REJECTED_WL=1098416
-		WRITTENSETS=419
+		REJECTED_WL=1096875
+		WRITTENSETS=1960
 	AssociationRules.reducers.CandidateReducer$Counters
-		DECLINED_SETS=11
+		DECLINED_SETS=432
 		FREQUENT_ITEMSETS=0
 	Shuffle Errors
 		BAD_ID=0
@@ -345,26 +345,26 @@ INFO: starting frequent itemset extraction for 4-tupels.
 		Bytes Written=0
 INFO: frequent itemset extraction completed for tupel size: 4
 INFO: number of processed baskets : 9835
-INFO: number of passed itemsets: 419
+INFO: number of passed itemsets: 1960
 INFO: number of frequent itemsets : 0
 ************************************************
 Stopped after trying with 4-tupels
 ************************************************
 INFO: starting rules extraction.
-16/05/21 15:07:32 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
-16/05/21 15:07:32 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
-16/05/21 15:07:32 INFO input.FileInputFormat: Total input paths to process : 3
-16/05/21 15:07:32 INFO mapreduce.JobSubmitter: number of splits:3
-16/05/21 15:07:32 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0081
-16/05/21 15:07:33 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0081
-16/05/21 15:07:33 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0081/
-16/05/21 15:07:33 INFO mapreduce.Job: Running job: job_1463830108286_0081
-16/05/21 15:07:45 INFO mapreduce.Job: Job job_1463830108286_0081 running in uber mode : false
-16/05/21 15:07:45 INFO mapreduce.Job:  map 0% reduce 0%
-16/05/21 15:07:54 INFO mapreduce.Job:  map 100% reduce 0%
-16/05/21 15:07:59 INFO mapreduce.Job:  map 100% reduce 100%
-16/05/21 15:08:00 INFO mapreduce.Job: Job job_1463830108286_0081 completed successfully
-16/05/21 15:08:00 INFO mapreduce.Job: Counters: 52
+16/05/22 10:53:25 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+16/05/22 10:53:25 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+16/05/22 10:53:25 INFO input.FileInputFormat: Total input paths to process : 3
+16/05/22 10:53:26 INFO mapreduce.JobSubmitter: number of splits:3
+16/05/22 10:53:26 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1463830108286_0091
+16/05/22 10:53:26 INFO impl.YarnClientImpl: Submitted application application_1463830108286_0091
+16/05/22 10:53:26 INFO mapreduce.Job: The url to track the job: http://Pauls-MacBook-Air.local:8088/proxy/application_1463830108286_0091/
+16/05/22 10:53:26 INFO mapreduce.Job: Running job: job_1463830108286_0091
+16/05/22 10:53:37 INFO mapreduce.Job: Job job_1463830108286_0091 running in uber mode : false
+16/05/22 10:53:37 INFO mapreduce.Job:  map 0% reduce 0%
+16/05/22 10:53:49 INFO mapreduce.Job:  map 100% reduce 0%
+16/05/22 10:53:55 INFO mapreduce.Job:  map 100% reduce 100%
+16/05/22 10:53:56 INFO mapreduce.Job: Job job_1463830108286_0091 completed successfully
+16/05/22 10:53:56 INFO mapreduce.Job: Counters: 51
 	File System Counters
 		FILE: Number of bytes read=10795
 		FILE: Number of bytes written=494527
@@ -372,23 +372,22 @@ INFO: starting rules extraction.
 		FILE: Number of large read operations=0
 		FILE: Number of write operations=0
 		HDFS: Number of bytes read=7590
-		HDFS: Number of bytes written=829
+		HDFS: Number of bytes written=878
 		HDFS: Number of read operations=13
 		HDFS: Number of large read operations=0
 		HDFS: Number of write operations=2
 	Job Counters 
-		Killed map tasks=1
 		Launched map tasks=3
 		Launched reduce tasks=1
 		Data-local map tasks=3
-		Total time spent by all maps in occupied slots (ms)=19840
-		Total time spent by all reduces in occupied slots (ms)=3214
-		Total time spent by all map tasks (ms)=19840
-		Total time spent by all reduce tasks (ms)=3214
-		Total vcore-milliseconds taken by all map tasks=19840
-		Total vcore-milliseconds taken by all reduce tasks=3214
-		Total megabyte-milliseconds taken by all map tasks=20316160
-		Total megabyte-milliseconds taken by all reduce tasks=3291136
+		Total time spent by all maps in occupied slots (ms)=25090
+		Total time spent by all reduces in occupied slots (ms)=3553
+		Total time spent by all map tasks (ms)=25090
+		Total time spent by all reduce tasks (ms)=3553
+		Total vcore-milliseconds taken by all map tasks=25090
+		Total vcore-milliseconds taken by all reduce tasks=3553
+		Total megabyte-milliseconds taken by all map tasks=25692160
+		Total megabyte-milliseconds taken by all reduce tasks=3638272
 	Map-Reduce Framework
 		Map input records=326
 		Map output records=688
@@ -400,16 +399,16 @@ INFO: starting rules extraction.
 		Reduce input groups=688
 		Reduce shuffle bytes=10807
 		Reduce input records=688
-		Reduce output records=13
+		Reduce output records=14
 		Spilled Records=1376
 		Shuffled Maps =3
 		Failed Shuffles=0
 		Merged Map outputs=3
-		GC time elapsed (ms)=374
+		GC time elapsed (ms)=494
 		CPU time spent (ms)=0
 		Physical memory (bytes) snapshot=0
 		Virtual memory (bytes) snapshot=0
-		Total committed heap usage (bytes)=695730176
+		Total committed heap usage (bytes)=709361664
 	AssociationRules.mappers.AssociationMapper$Counters
 		PERMUTATIONS=688
 	AssociationRules.reducers.AssociationReducer$Counters
@@ -424,10 +423,10 @@ INFO: starting rules extraction.
 	File Input Format Counters 
 		Bytes Read=2931
 	File Output Format Counters 
-		Bytes Written=829
+		Bytes Written=878
 INFO: rule extraction completed.
 INFO: total number of itemset permutations: 688
 INFO: total number of extracted rules     : 600
 ************************************************
-Application runtime: 2:14mins
-16/05/21 15:08:01 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Application runtime: 2:27mins
+16/05/22 10:53:57 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
