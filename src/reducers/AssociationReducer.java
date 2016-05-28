@@ -78,7 +78,6 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 
 	@Override
 	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-		// values should only have 1 element
 
 		int sum = 0;
 		int count = 0;
@@ -143,7 +142,9 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 			} catch(Exception e){
 				System.out.println("Failed calculating confidence: "+e.getMessage());
 			}
-        	intermediaryResultMap.put(new Text(key.toString()), new DoubleWritable(confidence));
+			if (confidence >= confidenceThreshold){
+        		intermediaryResultMap.put(new Text(key.toString()), new DoubleWritable(confidence));
+			}        
         }
         resultMap = null;
 
@@ -152,20 +153,18 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 		intermediaryResultMap = null;
     	for (Text key : sortedResultMap.keySet()){
     		DoubleWritable val = sortedResultMap.get(key);
-    		if (val.get() >= confidenceThreshold){
-	        	// // transform key into actual item names
-	        	String[] comps = key.toString().split(componentDelimiter);
-	        	for (int i = 0; i < comps.length; i++){
-	        		String[] ks = comps[i].split(";");
-	        		comps[i] = "{";
-	        		for (int k = 0; k < ks.length; k++){
-	        			comps[i] += keyItem.get(Integer.parseInt(ks[k]));
-	        			if (k < ks.length-1) comps[i] += itemSeparator;
-	        		}
-	        		comps[i] += "}";
-	        	}
-    			context.write(new Text(""+comps[0]+componentDelimiter+comps[1]), val);
-    		}
+        	// transform key into actual item names
+        	String[] comps = key.toString().split(componentDelimiter);
+        	for (int i = 0; i < comps.length; i++){
+        		String[] ks = comps[i].split(";");
+        		comps[i] = "{";
+        		for (int k = 0; k < ks.length; k++){
+        			comps[i] += keyItem.get(Integer.parseInt(ks[k]));
+        			if (k < ks.length-1) comps[i] += itemSeparator;
+        		}
+        		comps[i] += "}";
+        	}
+			context.write(new Text(""+comps[0]+componentDelimiter+comps[1]), val);
     	}
 
         System.out.println("Cleanup: Number of distinct rules = " + context.getCounter(Counters.RULES).getValue());
