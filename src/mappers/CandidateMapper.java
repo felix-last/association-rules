@@ -10,11 +10,13 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 // general dependencies
 import java.util.Set;
+import java.util.HashSet;
 import java.util.BitSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.IOException;
 import java.lang.InterruptedException;
@@ -128,7 +130,14 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 			}
 
 			// create every possible subset (consisting of tupelSize)
-			List<Set<Integer>> powerset = Utils.getSubsets(Arrays.asList(rawConverted), tupelSize);
+			List<Set<Integer>> powerset = new ArrayList<>();
+			if (rawConverted.length == tupelSize){
+				// use easy way out to save computation effort
+				powerset.add(new HashSet<Integer>(Arrays.asList(rawConverted)));
+			} else {
+				// get the subsets the complicated way
+				powerset = Utils.getSubsets(Arrays.asList(rawConverted), tupelSize);
+			}
 
 			// write each concatenated set to context with counter 1 if allowed by whitelist
 			Iterator<Set<Integer>> it = powerset.iterator();
