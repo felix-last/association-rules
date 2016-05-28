@@ -141,6 +141,8 @@ public class AssociationRules {
 		job.setJarByClass(AssociationRules.class);
 		job.setMapperClass(AssociationMapper.class);
 		job.setReducerClass(AssociationReducer.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(IntWritable.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(DoubleWritable.class);
 

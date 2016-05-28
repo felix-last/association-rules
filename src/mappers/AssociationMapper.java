@@ -4,7 +4,7 @@ package AssociationRules.mappers;
 import AssociationRules.util.Utils;
 
 // hadoop dependencies
-import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.lang.InterruptedException;
 
 
-public class AssociationMapper extends Mapper<Object, Text, Text, DoubleWritable> {
+public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
 
 	/*
 	*		INPUT FORMAT
@@ -50,7 +50,7 @@ public class AssociationMapper extends Mapper<Object, Text, Text, DoubleWritable
 		for (int i = 0; i < allPermutations.size(); i++) {
 			String result = Utils.concatenateArray(allPermutations.get(i), ";");
 			// key = A;B;N, value = count
-			context.write(new Text(result), new DoubleWritable(Double.parseDouble(parts[1])));
+			context.write(new Text(result), new IntWritable(Integer.parseInt(parts[1])));
 			context.getCounter(Counters.PERMUTATIONS).increment(1);
 		}
 	}

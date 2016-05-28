@@ -4,6 +4,7 @@ package AssociationRules.reducers;
 import AssociationRules.util.Utils;
 
 // hadoop dependencies
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.lang.InterruptedException;
 import org.apache.hadoop.fs.FileSystem;
 
-public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleWritable> {
+public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWritable> {
 
 	/*
 	*		INPUT FORMAT
@@ -76,18 +77,18 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 	}
 
 	@Override
-	public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
+	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 		// values should only have 1 element
 
-		Double sum = 0.0;
+		int sum = 0;
 		int count = 0;
-		for (DoubleWritable val : values){
+		for (IntWritable val : values){
 			sum += val.get();
 			count++;
 		}
 
 		// save to frequencies for confidence calculation
-		frequencies.put(new Text(key), new DoubleWritable(sum));
+		frequencies.put(new Text(key), new DoubleWritable((double)sum));
 
 		String[] raw = key.toString().split(";");
 
@@ -117,7 +118,7 @@ public class AssociationReducer extends Reducer<Text,DoubleWritable,Text,DoubleW
 					// A==>C;D	3
 					// A==>D;C	3				
 					if (!isBlacklisted(outputKey)){
-						resultMap.put(new Text(outputKey), new DoubleWritable(sum));
+						resultMap.put(new Text(outputKey), new DoubleWritable((double)sum));
 						addToBlacklist(outputKey);
 					}
 				}
