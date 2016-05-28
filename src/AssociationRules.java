@@ -20,23 +20,74 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.fs.FileSystem;
 
-// general dependencies
-
-
+/**
+ * AssociationRules is the Main Class that executes the Map-Reduce
+ * Application.
+ * The class handles the management of the input files of the 
+ * Map-Reduce Application, the parsing of the parameters (such as
+ * support threshold, confidence threshold or whether to keep 
+ * helperfiles) and the execution of the different types of jobs 
+ * necessary for generating association rules from a basket dataset.
+ *
+ * @author      Lukas Fahr
+ * @author      Felix Last
+ * @author      Paul Englert
+ * @version     1.0 - 28.05.2016
+ * @since       1.0
+ */
 public class AssociationRules {
 
-	private static final String BASKET_ITEM_SPLITTER = ","; // regex to split baskets into items, depending on input file
+	/**
+     * The regular expression that separates items in the input baskets.
+     */
+	private static final String BASKET_ITEM_SPLITTER = ",";
+
+	/**
+     * The character sequence that separates the antedecent from the consequent in the rules.
+     */
 	private static final String RULE_COMPONENT_DELIMITER = "->";
+
+	/**
+     * The character sequence that separates the items of the antidecent (and consequent).
+     */
 	private static final String RULE_ITEM_SEPARATOR = ",";
 
 
+	/**
+     * The start time of the application.
+     */
 	private static long APPLICATION_START_TIME = System.currentTimeMillis() / 1000L;
+
+	/**
+     * The flag whether to keep or delete the generated intermediary files (commandline accessible).
+     */
 	private static Boolean KEEP_HELPER_FILES = true;
 
-	// commandline paramters:
-	private static int SUPPORT_THRESHOLD = 100;
-	private static double CONFIDENCE_THRESHOLD = 0.3;
 	
+	/**
+     * The support threshold for the frequent itemset extraction (commandline accessible).
+     */
+	private static int SUPPORT_THRESHOLD = 100;
+
+	/**
+     * The confidence threshold for the rules extraction (commandline accessible).
+     */
+	private static double CONFIDENCE_THRESHOLD = 0.3;
+
+
+	
+	/**
+     * The main method handling the global process.
+     * Handles the parsing of the commandline parameters and continues with executing
+     * the frequent itemset extraction and then the rules extraction. The overall 
+     * runtime of the application will be recorded and printed to the console.
+     * If the number of parameters is not as expected the usage of the application will
+     * be printed to the console and the application terminates.
+     *
+     * @param args	the commandline parameters: support threshold, confidence threshold 
+     *				and the keep helperfiles flag
+     * @throws Exception	possible exceptions: IOException, InterruptedException
+     */
 	public static void main(String[] args) throws Exception {
 
 		Configuration conf = new Configuration();
@@ -90,12 +141,24 @@ public class AssociationRules {
 	}
 
 
-	/*		METHOD: extractFrequentItems
-	*					String inputPath :	input data files containing "."-separated basket data
-	*					String outputPath:	output location of the extracted frequent itemsets
-	*		
-	*		Extracts itemsets from baskets and calculates frequency (result dependent on support threshold)
-	*/
+		
+	/**
+     * Executing a frequent itemset extraction with fixed tuple size for the specified input.
+     * The method uses the private members SUPPORT_THRESHOLD and BASKET_ITEM_SPLITTER and the
+     * parameters to extract all frequent itemsets with the specified tuple size.
+     * In order to achieve that a job object is created with all the necessary configurations.
+     * 
+     *
+     * @param inputPath		the file system location of the input files 
+     * @param outputPath	the desired output location on the file system 
+     * @param tupelSize		the size of the itemsets that should be extracted 
+     * @param tmpPath		the file system location for the intermediary files 
+     * @return				number of frequent itemsets that have been extracted
+     * @throws Exception	possible exceptions: IOException, InterruptedException
+	 *
+     * @see       			#main(String[])
+     *					
+     */
 	public static Long extractFrequentItems(String inputPath, String outputPath, int tupelSize, String tmpPath) throws Exception{
 		System.out.println("************************************************");
 		System.out.println("INFO: starting frequent itemset extraction for "+tupelSize+"-tupels.");
@@ -123,12 +186,26 @@ public class AssociationRules {
 	}
 	
 
-	/*		METHOD: extractAssociationRules
-	*					String inputPath :	input files containing frequent itemsets, e.g. "A;C;D	3"
-	*					String outputPath:	output location of the extracted rules
-	*		
-	*		Extracts association rules based on frequent itemsets with a maximum number of independent items (max degree)
-	*/
+		
+	/**
+     * Executing a association rules extraction from a dataset of frequent items.
+     * The method uses the private members CONFIDENCE_THRESHOLD, RULE_COMPONENT_DELIMITER
+     * and RULE_ITEM_SEPARATOR and the specified parameters to compute association rules
+     * from all sub-directories (with the use of maxTupelSize) of the inputPath.
+     * In order to achieve that a job object is created with all the necessary configurations
+     * and the sub-directories are added as input paths.
+     * 
+     *
+     * @param inputPath		the file system location of the input files 
+     * @param outputPath	the desired output location on the file system 
+     * @param maxTupelSize	the size of the itemsets that should be extracted 
+     * @param tmpPath		the file system location for the intermediary files
+     * @throws Exception	possible exceptions: IOException, InterruptedException
+	 *
+     * @see       			#main(String[])
+     * @see       			#extractFrequentItems(String, String, int, String)
+     *					
+     */
 	public static void extractAssociationRules(String inputPath, String outputPath, int maxTupelSize, String tmpPath) throws Exception{
 		System.out.println("************************************************");
 		System.out.println("INFO: starting rules extraction.");
@@ -159,7 +236,19 @@ public class AssociationRules {
 		System.out.println("INFO: total number of extracted rules     : " + job.getCounters().findCounter(AssociationReducer.Counters.RULES).getValue());
 		System.out.println("************************************************");
 	}
-
+		
+	/**
+     * Cleaning the file system from the intermediary files used during the execution.
+     * If the private member KEEP_HELPER_FILES is set to <code>true</code> all files, except
+     * for the readable version of the key item mapping will be deleted. This method
+     * is called after the map-reduce jobs have been executed and the application
+     * is about to terminate.
+     *
+     * @param outputPath	the desired output location on the file system 
+	 *
+     * @see       			#main(String[])
+     *					
+     */
 	private static void cleanup(String outputPath){
 		if (!KEEP_HELPER_FILES){
 			try{
@@ -197,8 +286,14 @@ public class AssociationRules {
 		}
 	}
 
+	/**
+     * Print the usage of the application to the console.
+	 *
+     * @see       			#main(String[])
+     *					
+     */
 	private static void printUsage(){
-		System.err.println("Usage: AssociationRules <in> <out> [<support threshold> <confidence threshold>] [keep helperfiles: <true|false>]");
+		System.err.println("Usage: AssociationRules <in> <out> [<support threshold> <confidence threshold>] [<keep helperfiles: true|false>]");
 		System.err.println("       e.g. AssociationRules data/sample.txt results");
 		System.err.println("       e.g. AssociationRules data/sample.txt results 15 0.4 true");
 	}

@@ -235,6 +235,30 @@ generate () {
 
 } # end of generate ()
 
+docs () {
+
+	progress_echo "INFO: copying files"
+
+	if [ $(test -d ./tmp) ]; then
+		rm -r ./tmp
+	fi
+	mkdir -p ./tmp/AssociationRules
+
+	cp -r ./src/ ./tmp/AssociationRules/
+
+
+	progress_echo "INFO: compiling docs"
+	if javadoc -cp $(hadoop classpath) -d doc/ -sourcepath tmp/ -subpackages AssociationRules -private; then
+		progress_echo "INFO: compiled docs successfully"
+	else
+		progress_echo "ERROR: there have been some errors. Please check the log files."
+	fi
+
+	progress_echo "INFO: cleaning up"
+	rm -r ./tmp
+
+} # end of docs ()
+
 generate_mapred () {
 
 	#additional folder structure
@@ -506,6 +530,10 @@ case "$task" in
 	;;
 	"generate" )
 		generate
+		exit
+	;;
+	"docs" )
+		docs
 		exit
 	;;
 	* )

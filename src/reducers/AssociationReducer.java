@@ -19,45 +19,88 @@ import java.io.IOException;
 import java.lang.InterruptedException;
 import org.apache.hadoop.fs.FileSystem;
 
+/**
+ * AssociationReducer handles the concatenation of itemsets into rules and the calculation of their
+ * confidence. Each input set will be split into all possible rules, meaning that e.g. from 1;2;3
+ * the rules 1-2;3 and 1;2-3 will be created (the sorting will not be changed, it is 
+ * the @link AssociationRules.mappers.AssociationMapper job to produce all possible permutations). To calculate the confidence a frequencie map is maintained
+ * that is used for getting the count of the antedecent of the rule.<p>
+ * It relies on the following job configurations:
+ * <ul>
+ * <li>RULE_COMPONENT_DELIMITER: character sequence that splits rules</li>
+ * <li>RULE_ITEM_SEPARATOR: character sequence that splits items in the antedecent and consequent of a rule</li>
+ * <li>TMP_FILE_PATH: the file system location, where the intermediary files are to be found</li>
+ * <li>CONFIDENCE_THRESHOLD: minimum confidence that a rule has to reach</li>
+ * </ul>
+ *
+ * @author      Lukas Fahr
+ * @author      Felix Last
+ * @author      Paul Englert
+ * @version     1.0 - 28.05.2016
+ * @since       1.0
+ */
 public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWritable> {
 
-	/*
-	*		INPUT FORMAT
-	*						key		: Itemset <{itemset}>, e.g. 1;2;3
-	*						value	: frequency <frequency>, e.g. 5
-	*
-	*		OUTPUT FORMAT
-	*						key		: Rule <{independent items}==>{dependent items}>, e.g. A;B==>C
-	*						value	: confidence , e.g. 0.7
-	*
-	*/
-
-
+	/**
+     * Enumerator keeping count of the total extracted rules.
+	 */
 	public static enum Counters{
 		RULES
 	}
 
-	// by using this map the output of the reducer can be sorted by frequency
+	/**
+     * Map to keep the rules that have been generated to calculate their confidence.
+     */
 	private Map<Text, DoubleWritable> resultMap = new HashMap<>();
+	
+	/**
+     * Map to keep the frequencies of all itemsets. Used to find the support of the antedecent of the rule.
+     */
 	private Map<Text, DoubleWritable> frequencies = new HashMap<>();
 
-	// blacklist ensures that rules aren't outputted multiple times
+	/**
+     * Blacklist to not output duplicate rules. The blacklist will prevent that e.g. 1-2;3 and 1-3;2 are 
+     * seen as two distinct rules.
+     */
 	private List<String[]> blackList = new ArrayList();
 
-	// translate item name to integer id
-	// public static Map<String, Integer> itemKey = new HashMap<>(); // not needed
+	/**
+     * Translate integer value to item name, loaded from file if possible.
+     */
 	private static Map<Integer, String> keyItem = new HashMap<>();
 
-	// helper files location
+	/**
+     * Location of the helperfiles, loaded from file if possible.
+     */
 	private static String basePath = "";
 
-	// how to separate rule components: e.g. A;B==>C
+	/**
+     * Character sequence that separates antedecent from consequent, updated from configuration.
+     */
 	private static String componentDelimiter = "==>";
+	
+	/**
+     * Character sequence that separates items in the antedecent and consequent, updated from configuration.
+     */
 	private static String itemSeparator = ";";
-
-	// confidence threshold
+	
+	/**
+     * Confidence threshold applied to the extracted rules, updated from configuration.
+     */
 	private static Double confidenceThreshold = 0.5;
 
+    /**
+     * Preparing the reducer for execution by loading necessary files and reading configuration.
+     * The mapping from keys to item names is loaded here and the configuration is read to update
+     * the members componentDelimiter, itemSeparator, confidenceThreshold and basePath.
+     * @param context   			context of mapper
+     * 
+     * @throws IOException			is called in a file system context
+     * @throws InterruptedException	executed as thread, therefore can be interrupted
+     *
+     * @see 		AssociationRules.util.Utils#deserializeObject(FileSystem, String)
+     *
+     */
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
 		// read configuration
@@ -76,6 +119,27 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 		}
 	}
 
+	/**
+     * Reduce function to sum up the counts for a key and create the different rules from the itemset.
+     * The method will firstly sum up if necessary the values received and then put the itemset with its count
+     * into the frequencies map. The reducer will then generate all rules by splitting the itemset at each position.
+     * The resulting rules will be put into the resultMap for later calculation of the confidence, if the blacklist 
+     * is not violated.<p>
+     * INPUT FORMAT<p>
+	 * key	: Itemset, e.g. 1;2;3<br>
+	 * value: 2342 <p>
+	 *
+	 * OUTPUT FORMAT<p>
+	 * key	: Rule, e.g. A;B-C<br>
+	 * value: confidence of rule, e.g. 0.57 <p>
+	 *
+     * @param key					itemset key, e.g. 1;2;3
+     * @param values				the iterable counts for the key
+     * @param context 				the context of the map reduce job
+     *
+     * @throws IOException			is called in a file system context
+     * @throws InterruptedException	executed as thread, therefore can be interrupted
+     */ 
 	@Override
 	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 
@@ -125,6 +189,22 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 		}
 	}
 
+    /**
+     * Finishing the rules extraction by calculating confidences and converting the rules into readable format. 
+     * The cleanup will firstly loop over the resultMap and calculate the confidences, if a rule exceeds the confidence
+     * threshold it will be written to the intermediaryResultMap. The intermediaryResultMap will 
+     * then be sorted by values. The last step is to convert all rules on the intermediaryResultMap back to their item names
+     * and write them to the context with the calculated confidence.
+     *
+     * @param context   			context of mapper
+     * 
+     * 
+     * @throws IOException			is called in a file system context
+     * @throws InterruptedException	executed as thread, therefore can be interrupted
+	 *
+     * @see 						AssociationRules.util.Utils#sortMapByValues(Map)
+     *
+     */
 	@Override
 	public void cleanup(Context context) throws IOException, InterruptedException{
 		Map<Text, DoubleWritable> intermediaryResultMap = new HashMap<>();
@@ -171,6 +251,13 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 
 	}
 
+
+    /**
+     * Check whether a rule is on the blacklist or not. Checking if a similar rule is already accepted, to prevent,
+     * duplicate rules in the output.
+     * @param  rule 	input rule to check against the blacklist
+     * @return 			rule is blacklisted: true/false
+     */
 	private boolean isBlacklisted(String rule){
 		boolean blacklisted = false;
 		String[] inputComponents = rule.split(componentDelimiter);
@@ -190,6 +277,12 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 		return blacklisted;
 	}
 
+
+    /**
+     * Add a rule to the blacklist. 
+     * @param rule 	input rule to add to the blacklist
+     *
+     */
 	private void addToBlacklist(String rule){
 		String[] ruleComponents = rule.split(componentDelimiter);
 		for (int i = 0; i<2; i++){

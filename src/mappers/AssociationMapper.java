@@ -13,25 +13,46 @@ import java.util.List;
 import java.io.IOException;
 import java.lang.InterruptedException;
 
-
+/**
+ * AssociationMapper is the mapper used for extraction of the association rules.
+ * The class handles the input preparation of the map reduce job by parsing
+ * the input files into key, value pairs and generating all permutations.
+ *
+ * @author      Lukas Fahr
+ * @author      Felix Last
+ * @author      Paul Englert
+ * @version     1.0 - 28.05.2016
+ * @since       1.0
+ */
 public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
 
-	/*
-	*		INPUT FORMAT
-	*						key		: lineidentifier
-	*						value	: frequent itemset <{itemset}>\t<frequency>, e.g. 1;2;3	3
-	*
-	*		OUTPUT FORMAT
-	*						key		: Itemset <{itemset}>, e.g. 1;2;3
-	*						value	: frequency <frequency>, e.g. 3
-	*
-	*/
-
-
+	/**
+     * Enumerator keeping count of the total key, value pairs that have been written to the context
+	 */
 	public static enum Counters{
 		PERMUTATIONS
 	}
-
+	
+	/**
+     * Parses an input value into a key, value pair and generates all permutations. The method will 
+     * take the input key and split it by a tab character into a key and a value. The key is an
+     * itemset and the value the count for the itemset. The mapper will then write all permutations
+     * (sortings) of the itemset to the context.<p>
+     * INPUT FORMAT<p>
+	 * key	: lineidentifier<br>
+	 * value: frequent itemset and count, e.g. 1;2;3tab3<p>
+	 *
+	 * OUTPUT FORMAT<p>
+	 * key	: Itemset permutation, e.g. 1;2;3<br>
+	 * value: frequency of itemset, e.g. 5<p>
+	 *
+     * @param key					a input file lineidentifier
+     * @param value					the concatenated itemset-count pair
+     * @param context 				the context of the map reduce job
+     *
+     * @throws IOException			is called in a file system context
+     * @throws InterruptedException	executed as thread, therefore can be interrupted
+     */
 	@Override
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 		

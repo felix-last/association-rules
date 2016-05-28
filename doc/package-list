@@ -1,0 +1,5 @@
+AssociationRules
+AssociationRules.combiners
+AssociationRules.mappers
+AssociationRules.reducers
+AssociationRules.util
