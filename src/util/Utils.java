@@ -116,6 +116,7 @@ public class Utils {
 
     /*
     *  generate all subsets of given length k from an inputset 
+    *  Source: https://stackoverflow.com/questions/12548312/find-all-subsets-of-length-k-in-an-array
     */
     public static List<Set<Integer>> getSubsets(List<Integer> superSet, int k) {
         List<Set<Integer>> res = new ArrayList<>();
