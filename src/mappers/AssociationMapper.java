@@ -52,6 +52,7 @@ public class AssociationMapper extends Mapper<Object, Text, Text, IntWritable> {
      *
      * @throws IOException			is called in a file system context
      * @throws InterruptedException	executed as thread, therefore can be interrupted
+     * @see 						AssociationRules.util.Utils#getAllPossiblePermutations(Integer[])
      */
 	@Override
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {

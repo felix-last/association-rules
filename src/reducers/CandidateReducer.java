@@ -17,7 +17,7 @@ import org.apache.hadoop.fs.FileSystem;
 /**
  * CandidateReducer will sum up the counts of itemsets and pass them on if they are frequent.
  * The reducer will only pass on itemsets whose count exceeds a support threshold. Those itemsets
- * will also be put onto a BitSet whitelist, that is being persisted for use in the next iteration.
+ * will also be put onto a BitSet whitelist, that is being persisted for use in the next iteration.<p>
 * It relies on the following job configurations:
  * <ul>
  * <li>SUPPORT_THRESHOLD: support threshold to decide whether itemset is frequent or not</li>

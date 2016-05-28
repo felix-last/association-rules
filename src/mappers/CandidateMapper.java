@@ -280,8 +280,18 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		System.out.println("Cleanup CandidateMapper: Rejected_Size Counter = " + context.getCounter(Counters.REJECTED_SIZE).getValue());
 	}
 
-
-	// method to check if the subsets of the inputset are whitelisted or not
+    /**
+     * Check whether all subsets of size n-1 of the input array (size n) are whitelisted. Get all subsets of the input array
+     * with size n-1, n being the size of the input array and check whether they are on the whitelist. If yes return <code>true</code>,
+     * else return <code>false</code>.
+     *
+     * @param input 	input superset
+     * @return 			true if whitelisted, false if not
+     *
+     * @see 		AssociationRules.util.Utils#getSubsets(List, int)
+     * @see 		#isWhitelisted(Set)
+     *
+     */
 	private boolean isWhitelisted(Integer[] input){
 		// check if all subsets (size tupelSize-1) of set are on whitelist
 		boolean isAllowed = true;
@@ -293,7 +303,19 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		}
 		return isAllowed;
 	}
-	// method to check if an itemset is on the whitelist or not
+
+
+    /**
+     * Check whether a specific set is on the whitelist. This is achieved by checking the bit at the position
+     * of the sets hash-code.
+     *
+     * @param input 	input set to check if it is on the whitelist
+     * @return 			true if on whitelist, false if not
+     *
+     * @see 		AssociationRules.util.Utils#concatenateArray(Integer[], String)
+     * @see 		AssociationRules.util.Utils#hashKey(String)
+     *
+     */
 	private boolean isWhitelisted(Set<Integer> input){
 		String key = Utils.concatenateArray(input.toArray(new Integer[0]), ";");
 		Integer hash = Utils.hashKey(key);
