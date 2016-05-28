@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #	-------------------------------------------
-#		Version :	1.0.2
-#		Date 	:	21.05.2016
+#		Version :	1.0.3
+#		Date 	:	28.05.2016
 #	-------------------------------------------
 
 
@@ -430,7 +430,7 @@ usage () {
 	echo "		OPTIONS (optional):"
 	echo "			-o | --output	: specify the output directory, if empty will be set to ./results"
 	echo "			     --args 	: add additional programm related arguments"
-	echo "			            	  make sure its one string (escape spaces between arguments)!"
+	echo "			            	  NOTE: all arguments after this will be passed to the jar application"
 	echo "			-v | --verbose 	: log everything to console"
 	echo ""
 	echo "	generate	: generate a new hadoop application skeleton"
@@ -450,8 +450,9 @@ exec 3>&1 # enable progress_echo
 task=$1
 shift
 
+javaArgsFound="false"
 # retrieve configuration
-while [ "$1" != "" ]; do
+while [ \( "$1" != "" \) -a \( "$javaArgsFound" == "false" \) ]; do
     case $1 in
         -a | --all )
 			compileAll=true;;
@@ -472,7 +473,8 @@ while [ "$1" != "" ]; do
 			outputPath=$1;;
         --args )
 			shift
-			additionalArguments=$1;;
+			javaArgsFound="true"
+			additionalArguments="$@";;
         -pn | --projectname )
 			shift
 			projectName=$1;;
