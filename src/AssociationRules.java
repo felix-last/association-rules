@@ -31,7 +31,7 @@ public class AssociationRules {
 
 
 	private static long APPLICATION_START_TIME = System.currentTimeMillis() / 1000L;
-	private static final Boolean KEEP_HELPER_FILES = true;
+	private static Boolean KEEP_HELPER_FILES = true;
 
 	// commandline paramters:
 	private static int SUPPORT_THRESHOLD = 100;
@@ -41,7 +41,7 @@ public class AssociationRules {
 
 		Configuration conf = new Configuration();
 		String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-		if (otherArgs.length > 3 || otherArgs.length < 2) {
+		if (otherArgs.length > 5 || otherArgs.length < 2) {
 			printUsage();
 			System.exit(2);
 		}
@@ -50,11 +50,12 @@ public class AssociationRules {
 		final String outputPath 		= otherArgs[1];
 
 		try{
-			SUPPORT_THRESHOLD = Integer.parseInt(otherArgs[2].split("\\+")[0]);
-			CONFIDENCE_THRESHOLD = Double.parseDouble(otherArgs[2].split("\\+")[1]);
+			SUPPORT_THRESHOLD = Integer.parseInt(otherArgs[2]);
+			CONFIDENCE_THRESHOLD = Double.parseDouble(otherArgs[3]);
+			KEEP_HELPER_FILES = Boolean.parseBoolean(otherArgs[4]);
 		} catch(Exception e){
 			// ignore failure use default paramters
-			System.out.println("INFO: couldn't convert additional parameters, using defaults");
+			System.out.println("INFO: problem converting additional parameters, using defaults one or more default values");
 		}
 
 
@@ -197,8 +198,8 @@ public class AssociationRules {
 	}
 
 	private static void printUsage(){
-		System.err.println("Usage: AssociationRules <in> <out> [<support threshold>+<confidence threshold>]");
+		System.err.println("Usage: AssociationRules <in> <out> [<support threshold> <confidence threshold>] [keep helperfiles: <true|false>]");
 		System.err.println("       e.g. AssociationRules data/sample.txt results");
-		System.err.println("       e.g. AssociationRules data/sample.txt results 15+0.4");
+		System.err.println("       e.g. AssociationRules data/sample.txt results 15 0.4 true");
 	}
 }

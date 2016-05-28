@@ -37,6 +37,7 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	public static enum Counters{
 		WRITTENSETS,
 		REJECTED_WL,
+		REJECTED_SIZE,
 		INPUTLINES,
 		ITEMS
 	}
@@ -109,37 +110,42 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		// convert input into array
 		String[] raw = value.toString().split(splitter);
 
-		// convert item names into integers and keep mapping data in map
-		Integer[] rawConverted = new Integer[raw.length];
-		for (int i = 0; i < raw.length; i++){
-			Integer id = 0;
-			if (itemKey.containsKey(raw[i])){
-				id = itemKey.get(raw[i]);
-			} else {
-				context.getCounter(Counters.ITEMS).increment(1);
-				id = (int) context.getCounter(Counters.ITEMS).getValue();
-				itemKey.put(raw[i], id);
-				keyItem.put(id, raw[i]);
+		// only continue if the current basket has a large enough size
+		if (raw.length >= tupelSize){
+			// convert item names into integers and keep mapping data in map
+			Integer[] rawConverted = new Integer[raw.length];
+			for (int i = 0; i < raw.length; i++){
+				Integer id = 0;
+				if (itemKey.containsKey(raw[i])){
+					id = itemKey.get(raw[i]);
+				} else {
+					context.getCounter(Counters.ITEMS).increment(1);
+					id = (int) context.getCounter(Counters.ITEMS).getValue();
+					itemKey.put(raw[i], id);
+					keyItem.put(id, raw[i]);
+				}
+				rawConverted[i] = id;
 			}
-			rawConverted[i] = id;
-		}
 
-		// create every possible subset (consisting of tupelSize)
-		List<Set<Integer>> powerset = Utils.getSubsets(Arrays.asList(rawConverted), tupelSize);
+			// create every possible subset (consisting of tupelSize)
+			List<Set<Integer>> powerset = Utils.getSubsets(Arrays.asList(rawConverted), tupelSize);
 
-		// write each concatenated set to context with counter 1 if allowed by whitelist
-		Iterator<Set<Integer>> it = powerset.iterator();
-		while (it.hasNext()){
-			Set<Integer> subset = it.next();
-			Integer[] subsetArray = subset.toArray(new Integer[subset.size()]);
-			
-			if (noWhitelist || isWhitelisted(subsetArray)){
-				String result = Utils.concatenateArray(subsetArray, ";");
-				context.write(new Text(result), one);
-				context.getCounter(Counters.WRITTENSETS).increment(1);
-			} else {
-				context.getCounter(Counters.REJECTED_WL).increment(1);
+			// write each concatenated set to context with counter 1 if allowed by whitelist
+			Iterator<Set<Integer>> it = powerset.iterator();
+			while (it.hasNext()){
+				Set<Integer> subset = it.next();
+				Integer[] subsetArray = subset.toArray(new Integer[subset.size()]);
+				
+				if (noWhitelist || isWhitelisted(subsetArray)){
+					String result = Utils.concatenateArray(subsetArray, ";");
+					context.write(new Text(result), one);
+					context.getCounter(Counters.WRITTENSETS).increment(1);
+				} else {
+					context.getCounter(Counters.REJECTED_WL).increment(1);
+				}
 			}
+		} else {
+			context.getCounter(Counters.REJECTED_SIZE).increment(1);
 		}
 	}
 
@@ -166,6 +172,7 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 		System.out.println("Cleanup CandidateMapper: Writtensets Counter = " + context.getCounter(Counters.WRITTENSETS).getValue());
 		System.out.println("Cleanup CandidateMapper: Inputlines Counter = " + context.getCounter(Counters.INPUTLINES).getValue());
 		System.out.println("Cleanup CandidateMapper: Rejected_WL Counter = " + context.getCounter(Counters.REJECTED_WL).getValue());
+		System.out.println("Cleanup CandidateMapper: Rejected_Size Counter = " + context.getCounter(Counters.REJECTED_SIZE).getValue());
 	}
 
 
