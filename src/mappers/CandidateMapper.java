@@ -281,9 +281,10 @@ public class CandidateMapper extends Mapper<Object, Text, Text, IntWritable> {
 	}
 
     /**
-     * Check whether all subsets of size n-1 of the input array (size n) are whitelisted. Get all subsets of the input array
-     * with size n-1, n being the size of the input array and check whether they are on the whitelist. If yes return <code>true</code>,
-     * else return <code>false</code>.
+     * Check whether all subsets of size n-1 of the input array (size n) are whitelisted. 
+     * The method gets all subsets of the input array with size n-1, n being the size of 
+     * the input array and checks whether they are on the whitelist. If yes <code>true</code> is returned,
+     * if not <code>false</code> is returned.
      *
      * @param input 	input superset
      * @return 			true if whitelisted, false if not

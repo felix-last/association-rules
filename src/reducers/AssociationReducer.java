@@ -23,7 +23,8 @@ import org.apache.hadoop.fs.FileSystem;
  * AssociationReducer handles the concatenation of itemsets into rules and the calculation of their
  * confidence. Each input set will be split into all possible rules, meaning that e.g. from 1;2;3
  * the rules 1-2;3 and 1;2-3 will be created (the sorting will not be changed, it is 
- * the @link AssociationRules.mappers.AssociationMapper job to produce all possible permutations). To calculate the confidence a frequencie map is maintained
+ * the @link AssociationRules.mappers.AssociationMapper job to produce all possible permutations). 
+ * To calculate the confidence a frequencie map is maintained
  * that is used for getting the count of the antedecent of the rule.<p>
  * It relies on the following job configurations:
  * <ul>
@@ -31,6 +32,10 @@ import org.apache.hadoop.fs.FileSystem;
  * <li>RULE_ITEM_SEPARATOR: character sequence that splits items in the antedecent and consequent of a rule</li>
  * <li>TMP_FILE_PATH: the file system location, where the intermediary files are to be found</li>
  * <li>CONFIDENCE_THRESHOLD: minimum confidence that a rule has to reach</li>
+ * </ul>
+ * Additionally the following files are used during execution:
+ * <ul>
+ * <li>key-itemMap.ser: mapping of integer values to item names</li>
  * </ul>
  *
  * @author      Lukas Fahr
@@ -49,12 +54,12 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 	}
 
 	/**
-     * Map to keep the rules that have been generated to calculate their confidence.
+     * Map to save the rules that have been generated to calculate their confidence later.
      */
 	private Map<Text, DoubleWritable> resultMap = new HashMap<>();
 	
 	/**
-     * Map to keep the frequencies of all itemsets. Used to find the support of the antedecent of the rule.
+     * Map to save the frequencies of all itemsets. Used to find the support of the antedecent of the rule.
      */
 	private Map<Text, DoubleWritable> frequencies = new HashMap<>();
 
@@ -70,7 +75,7 @@ public class AssociationReducer extends Reducer<Text,IntWritable,Text,DoubleWrit
 	private static Map<Integer, String> keyItem = new HashMap<>();
 
 	/**
-     * Location of the helperfiles, loaded from file if possible.
+     * Location of the helperfiles, updated from configuration.
      */
 	private static String basePath = "";
 

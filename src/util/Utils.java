@@ -31,7 +31,7 @@ import org.apache.hadoop.fs.FileSystem;
 
 /**
  * Utils is the utility class used in the application.
- * The class has methods for several different and shared tasks:
+ * The class has methods for several shared tasks of the application:
  * <ul>
  * <li>Hashmap Sorting</li>
  * <li>Array Permutation</li>
@@ -62,7 +62,7 @@ public class Utils {
 
 
     /**
-     * Get the version of the application to the console.
+     * Get the version of the application.
      * @return version string of the application
      */
 	public static String getVersion(){
